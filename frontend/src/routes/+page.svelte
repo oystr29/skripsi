@@ -1,2 +1,10 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+  import { Canvas } from '@threlte/core';
+  import Home from '../components/home.svelte';
+  import Webcam from '../components/webcam.svelte';
+</script>
+
+<!-- <Canvas>
+  <Home />
+</Canvas> -->
+<Webcam />
