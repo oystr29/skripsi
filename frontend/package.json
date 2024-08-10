@@ -15,8 +15,8 @@
 		"test:unit": "vitest"
 	},
 	"devDependencies": {
-	"@playwright/test": "^1.28.1",
-	"@sveltejs/adapter-auto": "^3.0.0",
+		"@playwright/test": "^1.28.1",
+		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "^9.6.0",
@@ -37,6 +37,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@mediapipe/camera_utils": "^0.3.1675466862",
 		"@mediapipe/drawing_utils": "^0.3.1675466124",
 		"@mediapipe/hands": "^0.4.1675469240",
 		"@mediapipe/tasks-vision": "^0.10.14",
