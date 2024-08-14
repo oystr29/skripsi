@@ -1,11 +1,11 @@
 import { writable } from 'svelte/store';
+import * as THREE from 'three';
 
-const video_width = 1280;
-const video_height = 720;
-const video_width_crop = Math.round(video_width / 1.6);
+export const is_mobile = writable(false);
+export const left_hand_selected = false;
 
-const has_allowed_webcam = writable(false);
+/** @type {import('svelte/store').Writable<import('$lib/handscene')>} */
+export const HAND_SCENE = writable();
 
-const is_mobile = writable(false);
-
-export { video_width, is_mobile };
+const global = { HAND_SCENE, is_mobile, left_hand_selected };
+export default global;

@@ -17,9 +17,14 @@
   /**@type {HTMLDivElement}*/
   let startButton;
   /**@type {HTMLDivElement}*/
+  let innerBG;
+  /**@type {HTMLDivElement}*/
   let homeBottomText;
 
   const duration = 0.6;
+
+  function onMouseEnter() {}
+
   onMount(() => {
     // set
     gsap.set(logo, { y: -200, opacity: 0 });
@@ -129,17 +134,15 @@
         menggunakan Machine Learning
       </div>
       <div bind:this={line3} class="line3"></div>
-      <div bind:this={startButton} class="allowWebcamButton">
-        <div class="innerBG"></div>
-        <div class="innerText">
-          <div>L</div>
-          <div>e</div>
-          <div>t</div>
-          <div>'</div>
-          <div>s</div>
-          <div>g</div>
-          <div>o</div>
-        </div>
+      <div
+        bind:this={startButton}
+        class="allowWebcamButton"
+        on:mouseover={(e) => {
+          const line1 = logo.getBoundingClientRect();
+        }}
+      >
+        <div class="innerBG" bind:this={innerBG}></div>
+        <div class="innerText">Let's Go</div>
       </div>
     </div>
     <div class="bottomText" bind:this={homeBottomText}>
