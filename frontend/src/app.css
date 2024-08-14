@@ -4,15 +4,25 @@
 
 @layer base {
   @font-face {
-    font-family: 'LabilGrotesk-Medium';
+    font-family: 'LabilGroteskRegular';
     font-style: normal;
-    font-weight: 400;
-    src: url(/font/Roboto.ttf) format('ttf');
+    font-weight: normal;
+    src: url('/font/LabilGrotesk-Regular.woff') format('woff');
   }
 }
 
-html {
-  font-family: 'LabilGrotesk-Medium';
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  font-family: 'LabilGroteskRegular', sans-serif;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 video {

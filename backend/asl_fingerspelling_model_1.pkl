@@ -1,0 +1,1 @@
+../model/asl_fingerspelling_model_1.pkl

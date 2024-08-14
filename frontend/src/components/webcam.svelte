@@ -1,4 +1,5 @@
 <script>
+  import { dev } from '$app/environment';
   import handd from '@mediapipe/hands';
   const { HAND_CONNECTIONS } = handd;
   import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
@@ -73,7 +74,6 @@
         canvasCtx.beginPath();
         canvasCtx.arc(lastVideoTime * 2, 50, 40, 0, 2 * Math.PI);
         canvasCtx.stroke();
-        console.log(lastVideoTime);
         if (results?.landmarks) {
           for (const landmarks of results.landmarks) {
             // draw connector
@@ -81,7 +81,7 @@
               return;
             }
             const ctx = canvasCtx;
-            const options = addDefaultOptions({ color: '#00FF00', lineWidth: 5 });
+            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 5 });
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
@@ -102,7 +102,7 @@
             }
 
             // draw landmarks
-            const optionLandmarks = addDefaultOptions({ color: '#FF0000', lineWidth: 2 });
+            const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 2 });
             ctx.save();
             const canvasLandmarks = ctx.canvas;
             let indexLandmarks = 0;
@@ -161,7 +161,9 @@
 
     handlandmarker = await HandLandmarker.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath: '/hand_landmarker.task',
+        modelAssetPath: dev
+          ? '/hand_landmarker.task'
+          : `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
         delegate: 'GPU'
       },
       runningMode: 'VIDEO',
