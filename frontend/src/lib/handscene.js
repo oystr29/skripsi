@@ -132,6 +132,71 @@ function animateBackgroundColor(newColor) {
   });
 }
 
+/**@function
+ * @param {import('three/examples/jsm/Addons.js').GLTF} gltf */
+function onLoadHand(gltf) {
+  console.log(gltf);
+  const child = gltf.scene.children[0];
+
+  const dirLight3 = new THREE.SpotLight(0xffffff);
+  dirLight3.position.set(-100, -100, 100);
+  // @ts-ignore
+  dirLight3.lookAt(child);
+  scene.add(dirLight3);
+
+  child.scale.set(6, 6, 6);
+  // console.log(child);
+  // console.log(child.children[1]);
+
+  // @ts-ignore
+  handMaterial = child.children[1].children[0].material;
+  // console.log(handMaterial);
+  handMaterial.color.setHex(0x413aff);
+  handMaterial.roughness = 0.45;
+  handMaterial.metalness = 0.0;
+
+  // console.log(child);
+  hand = child;
+
+  hand.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+  child.position.z = -700;
+
+  scene.add(gltf.scene);
+
+  mixer = new THREE.AnimationMixer(gltf.scene);
+
+  const animations = gltf.animations;
+
+  for (let i = 0; i < animations.length; i++) {
+    const getAnim = mixer.clipAction(animations[i]);
+
+    if (i > 0) {
+      getAnim.time = animations[i].duration / 2;
+
+      if (i === 10) {
+        getAnim.time = 0;
+      } else if (i === 26 || i === 27) {
+        getAnim.time = 0;
+      }
+
+      getAnim.paused = true;
+      getAnim.play();
+      getAnim.weight = 0;
+    } else {
+      currentAnimation = getAnim;
+    }
+    // console.log(currentAnimation);
+
+    animationMixes.push(getAnim);
+  }
+
+  handLoadedCallback();
+
+  gsap.to(hand.position, { delay: 1, duration: 1, z: 50, ease: 'power3.out' });
+
+  spellSentence('yoga');
+}
+
 /**
  * @param {Function} loadHandCallback
  * @param {Function} onProgressCallback
@@ -145,68 +210,7 @@ function loadHand(loadHandCallback, onProgressCallback) {
   // Load a gLTF resource
   loader.load(
     '/rigget_V16.glb',
-    (gltf) => {
-      console.log(gltf);
-      const child = gltf.scene.children[0];
-
-      const dirLight3 = new THREE.SpotLight(0xffffff);
-      dirLight3.position.set(-100, -100, 100);
-      // @ts-ignore
-      dirLight3.lookAt(child);
-      scene.add(dirLight3);
-
-      child.scale.set(6, 6, 6);
-      console.log(child);
-      console.log(child.children[1]);
-
-      // @ts-ignore
-      handMaterial = child.children[1].children[0].material;
-      console.log(handMaterial);
-      handMaterial.color.setHex(0x413aff);
-      handMaterial.roughness = 0.45;
-      handMaterial.metalness = 0.0;
-
-      console.log(child);
-      hand = child;
-
-      hand.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
-      child.position.z = -700;
-
-      scene.add(gltf.scene);
-
-      mixer = new THREE.AnimationMixer(gltf.scene);
-
-      const animations = gltf.animations;
-
-      for (let i = 0; i < animations.length; i++) {
-        const getAnim = mixer.clipAction(animations[i]);
-
-        if (i > 0) {
-          getAnim.time = animations[i].duration / 2;
-
-          if (i === 10) {
-            getAnim.time = 0;
-          } else if (i === 26 || i === 27) {
-            getAnim.time = 0;
-          }
-
-          getAnim.paused = true;
-          getAnim.play();
-          getAnim.weight = 0;
-        } else {
-          currentAnimation = getAnim;
-        }
-        console.log(currentAnimation);
-
-        animationMixes.push(getAnim);
-      }
-
-      handLoadedCallback();
-
-      gsap.to(hand.position, { delay: 1, duration: 1, z: 50, ease: 'power3.out' });
-
-      spellSentence('yoga');
-    },
+    onLoadHand,
     (xhr) => {
       const percentLoaded = (xhr.loaded / xhr.total) * 100;
       console.log(`${percentLoaded}% loaded`);
@@ -320,7 +324,7 @@ const setNewHand = (count, onCompleteCallback) => {
     console.log('--- setting new hand 27');
   }
 
-  console.log(getHandAnimation);
+  // console.log(getHandAnimation);
 
   let animTime = 0.4 * global.GAME_SETTINGS.handSpellSlowdown * 1;
   let delay = 0.3 * global.GAME_SETTINGS.handSpellSlowdown * 1;
@@ -437,7 +441,7 @@ const setNewHand = (count, onCompleteCallback) => {
         weight: 1,
         ease: 'linear.easeNone'
       });
-      console.log(currentAnimation);
+      // console.log(currentAnimation);
       gsap.to(currentAnimation, {
         delay: delay,
         duration: animTime,
@@ -532,6 +536,7 @@ const spellSentence = (sentence) => {
     const letterToNumber = convertLetterToNumber(currentLetter);
     sentenceArray.push(letterToNumber);
   }
+  console.log(sentenceArray);
 
   currentWordInSentenceCount = 0;
   nextLetter();
