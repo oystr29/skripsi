@@ -1,9 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import * as THREE from 'three';
-  import { HAND_SCENE, is_mobile } from '$lib/global';
-  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-  import gsap from 'gsap';
+  import { HAND_SCENE } from '$lib/global';
   import * as handscene from '$lib/handscene';
 
   /**@type {HTMLDivElement}*/

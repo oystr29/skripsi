@@ -4,8 +4,18 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import gsap from 'gsap';
 
 let is_mobile = false;
-global.is_mobile.subscribe((v) => {
+global.IS_MOBILE.subscribe((v) => {
   is_mobile = v;
+});
+
+let in_game = false;
+global.IN_GAME.subscribe((v) => {
+  in_game = v;
+});
+
+let left_hand_selected = false;
+global.LEFT_HAND_SELECTED.subscribe((v) => {
+  left_hand_selected = v;
 });
 
 /** @type {THREE.PerspectiveCamera}*/
@@ -23,24 +33,24 @@ let animateResize = { width: 0, height: 0 };
 
 /** @type {Array<THREE.AnimationAction>}*/
 let animationMixes = [];
-/** @type {THREE.AnimationAction}*/
+/** @type {THREE.AnimationAction | null}*/
 let currentAnimation;
 
 /** @type {Function}*/
 let handLoadedCallback;
 
 let currentWordInSentenceCount = 0;
-/**@type {Array<string>}*/
+/**@type {Array<number>}*/
 let sentenceArray = [];
 
 /** @type {THREE.Object3D<THREE.Object3DEventMap>}*/
 let hand;
 
-let DEBUG = false;
+// let DEBUG = false;
 
 let halfSize = false;
 
-let moveToLeft = false;
+let movedToLeft = false;
 
 /** @type {THREE.MeshStandardMaterial} */
 let handMaterial;
@@ -54,7 +64,7 @@ let container;
 
 let currentBGColor = { color: 0x413aff };
 
-let isSpelling = false;
+// let isSpelling = false;
 
 /**
  * @param {HTMLDivElement} container
@@ -88,9 +98,6 @@ function init(container) {
   const dirLight2 = new THREE.SpotLight(0xffffff);
   dirLight2.position.set(100, -100, 100);
   scene.add(dirLight2);
-
-  // @ts-ignore
-  const spotLightHelper = new THREE.SpotLightHelper(dirLight2);
 
   // ground
   const mesh = new THREE.Mesh(
@@ -197,6 +204,8 @@ function loadHand(loadHandCallback, onProgressCallback) {
       handLoadedCallback();
 
       gsap.to(hand.position, { delay: 1, duration: 1, z: 50, ease: 'power3.out' });
+
+      spellSentence('yoga');
     },
     (xhr) => {
       const percentLoaded = (xhr.loaded / xhr.total) * 100;
@@ -217,7 +226,7 @@ function onWindowResize() {
     } else {
       width = window.innerWidth / 2;
     }
-    if (global.left_hand_selected && !is_mobile) {
+    if (left_hand_selected && !is_mobile) {
       gsap.set(container, { duration: 0.4, x: window.innerWidth / 2 });
     }
   }
@@ -249,8 +258,415 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-function getHand() {
-  return hand;
+/**
+ * @function
+ * @param {THREE.ColorRepresentation} newColor
+ * */
+const changeHandColor = (newColor) => {
+  const setColor = new THREE.Color(newColor);
+  gsap.to(handMaterial.color, {
+    duration: 0.5,
+    r: setColor.r,
+    g: setColor.g,
+    b: setColor.b,
+    ease: 'power1.out'
+  });
+};
+
+const makeLeftHand = () => {
+  if (isRightHand) {
+    hand.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+    isRightHand = false;
+  }
+};
+
+const makeRightHand = () => {
+  if (!isRightHand) {
+    hand.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+    isRightHand = true;
+  }
+};
+
+/**
+ * @function
+ * @param {string} letter
+ * */
+const convertLetterToNumber = (letter) => {
+  return letter.toLowerCase().charCodeAt(0) - 97 + 1;
+};
+
+/**
+ * @public
+ * @function
+ * @param {number} count
+ * @param {((...args: any[]) => void )| undefined} onCompleteCallback
+ * */
+const setNewHand = (count, onCompleteCallback) => {
+  if (count === 0) {
+    stopSpelling();
+    return;
+  }
+
+  if (count > animationMixes.length) {
+    count = 0;
+    console.log(`Letter not yet created, count: ${count}`);
+  }
+
+  let getHandAnimation = animationMixes[count];
+
+  if (count === 26) {
+    // use the other Z
+    getHandAnimation = animationMixes[27];
+    console.log('--- setting new hand 27');
+  }
+
+  console.log(getHandAnimation);
+
+  let animTime = 0.4 * global.GAME_SETTINGS.handSpellSlowdown * 1;
+  let delay = 0.3 * global.GAME_SETTINGS.handSpellSlowdown * 1;
+
+  if (!onCompleteCallback) {
+    delay = 0;
+  }
+
+  if (count === 7) {
+    // G -- Hand needs to twist more - so we are making this one slower
+    animTime = 1 * global.GAME_SETTINGS.handSpellSlowdown * 1;
+  }
+
+  if (getHandAnimation !== currentAnimation) {
+    if (previousLetter === 9 && count === 14) {
+      // I to N (fingers collide - trying to fix that)
+
+      gsap.to(currentAnimation, {
+        delay: delay,
+        duration: animTime,
+        weight: 0,
+        ease: 'power1.easeIn'
+      });
+      gsap.to(animationMixes[0], {
+        delay: delay,
+        duration: animTime,
+        weight: 0.3,
+        ease: 'linear.easeNone'
+      });
+    }
+
+    if (count === 10 || count === 26) {
+      // I to N (fingers collide - trying to fix that)
+      //console.log('I to N');
+      gsap.to(currentAnimation, {
+        delay: delay,
+        duration: animTime,
+        weight: 1,
+        ease: 'power1.easeIn'
+      });
+      gsap.to(animationMixes[0], {
+        delay: delay,
+        duration: animTime,
+        weight: 0,
+        ease: 'linear.easeNone'
+      });
+      if (count === 26) {
+        playHandAnimation(count + 1);
+      } else {
+        playHandAnimation(count);
+      }
+    } else if (previousLetter === 7 && count === 5) {
+      animTime = 1 * global.GAME_SETTINGS.handSpellSlowdown * 1;
+      // From G to E
+      gsap.to(currentAnimation, {
+        delay: delay,
+        duration: animTime * 1,
+        time: 0.3,
+        ease: 'linear.easeNone'
+      });
+
+      gsap.to(currentAnimation, {
+        delay: delay * 1.3,
+        duration: 1,
+        weight: 0,
+        ease: 'linear.easeNone'
+      });
+      gsap.to(currentAnimation, {
+        delay: delay * 1.3 + 1,
+        duration: 1,
+        time: 3,
+        ease: 'linear.easeNone'
+      });
+      gsap.to(getHandAnimation, {
+        delay: delay * 1.3 + 0.2,
+        duration: animTime * 1,
+        weight: 1,
+        ease: 'linear.easeNone',
+        onComplete: onCompleteCallback
+      });
+    } else if (previousLetter === 8 && count === 20) {
+      animTime = 1 * global.GAME_SETTINGS.handSpellSlowdown * 1;
+
+      gsap.to(currentAnimation, {
+        delay: delay,
+        duration: animTime * 1,
+        time: 0.3,
+        ease: 'linear.easeNone'
+      });
+
+      gsap.to(currentAnimation, {
+        delay: delay * 1.3 + 0.5,
+        duration: 1,
+        weight: 0,
+        ease: 'linear.easeNone'
+      });
+      gsap.to(currentAnimation, {
+        delay: delay * 1.3 + 0.5 + 1,
+        duration: 1,
+        time: 3,
+        ease: 'linear.easeNone'
+      });
+      gsap.to(getHandAnimation, {
+        delay: delay * 1.3 + 1,
+        duration: animTime * 1,
+        weight: 1,
+        ease: 'linear.easeNone',
+        onComplete: onCompleteCallback
+      });
+    } else {
+      gsap.to(animationMixes[0], {
+        delay: delay,
+        duration: animTime,
+        weight: 1,
+        ease: 'linear.easeNone'
+      });
+      console.log(currentAnimation);
+      gsap.to(currentAnimation, {
+        delay: delay,
+        duration: animTime,
+        weight: 0,
+        ease: 'linear.easeNone'
+      });
+      gsap.to(getHandAnimation, {
+        delay: delay,
+        duration: animTime,
+        weight: 1,
+        ease: 'linear.easeNone',
+        onComplete: onCompleteCallback
+      });
+    }
+  } else {
+    gsap.to(animationMixes[0], {
+      delay: 0.3,
+      duration: animTime,
+      weight: 1,
+      ease: 'linear.easeNone'
+    });
+
+    // Its the same letter - so we move the hand slightly on the X axis
+    if (!in_game) {
+      if (movedToLeft) {
+        gsap.to(hand.position, {
+          delay: 0.3,
+          duration: animTime,
+          x: 0,
+          onComplete: onCompleteCallback
+        });
+        movedToLeft = false;
+      } else {
+        gsap.to(hand.position, {
+          delay: 0.3,
+          duration: animTime,
+          x: -0.1,
+          onComplete: onCompleteCallback
+        });
+        movedToLeft = true;
+      }
+    } else {
+      // @ts-ignore
+      gsap.delayedCall(0.3 + animTime, onCompleteCallback);
+    }
+  }
+
+  previousLetter = count;
+  currentAnimation = getHandAnimation;
+};
+
+/**@public
+ * @param {number} number*/
+const playHandAnimation = (number) => {
+  stopSpelling();
+  gsap.delayedCall(0.3, starAnim, [number]);
+};
+
+/**@private
+ * @param {number} number */
+function starAnim(number) {
+  const getAnim = animationMixes[number];
+  getAnim.time = 0;
+  getAnim.paused = false;
+  getAnim.play();
+  getAnim.weight = 1;
 }
 
-export { handScene, animateBackgroundColor, loadHand, getHand };
+/**
+ * @public
+ * @param {string} letter */
+const spellLetter = (letter) => {
+  console.log(`*** spellLetter: ${letter}`);
+  stopSpelling();
+
+  sentenceArray = [0];
+  currentWordInSentenceCount = 0;
+  nextLetter();
+};
+
+/** @public
+ * @param {string} sentence*/
+const spellSentence = (sentence) => {
+  stopSpelling();
+
+  const words = sentence.split('');
+
+  sentenceArray = [];
+
+  for (let i = 0; i < words.length; i++) {
+    const currentLetter = words[i];
+    const letterToNumber = convertLetterToNumber(currentLetter);
+    sentenceArray.push(letterToNumber);
+  }
+
+  currentWordInSentenceCount = 0;
+  nextLetter();
+};
+
+/**@public*/
+const spellPreloaderAnim = () => {
+  sentenceArray = [27, 28, 29, 30];
+  currentWordInSentenceCount = 0;
+
+  nextLetter();
+};
+
+function nextLetter() {
+  const len = sentenceArray.length;
+
+  if (len === 1) {
+    setNewHand(sentenceArray[currentWordInSentenceCount], undefined);
+  } else {
+    setNewHand(sentenceArray[currentWordInSentenceCount], nextLetter);
+  }
+  currentWordInSentenceCount++;
+  if (currentWordInSentenceCount >= sentenceArray.length) {
+    currentWordInSentenceCount = 0;
+  }
+}
+
+/** @public*/
+const stopSpelling = () => {
+  currentWordInSentenceCount = 0;
+  sentenceArray = [];
+
+  gsap.killTweensOf(currentAnimation);
+  gsap.killTweensOf(animationMixes[0]);
+  gsap.killTweensOf(animationMixes);
+
+  if (in_game) {
+    gsap.to(hand.position, { delay: 0.0, duration: 0.3, x: 0 });
+  }
+
+  gsap.to(animationMixes, { duration: 0.3 });
+  currentAnimation = null;
+  movedToLeft = false;
+};
+
+/**
+ * @function
+ * @public
+ * @param {number} posX
+ * @param {number} posY*/
+const getPositionIn3D = (posX, posY) => {
+  const vec = new THREE.Vector3();
+  const pos = new THREE.Vector3();
+
+  vec.set((posX / window.innerWidth) * 2 - 1, -(posY / window.innerHeight) * 2 + 1, 0.5);
+
+  vec.unproject(camera);
+
+  vec.sub(camera.position).normalize();
+
+  const distance = camera.position.z / vec.z;
+
+  pos.copy(camera.position).add(vec.multiplyScalar(distance));
+
+  return pos;
+};
+
+/**
+ * @function
+ * @public
+ * */
+const getHand = () => {
+  return hand;
+};
+
+/**
+ * @function
+ * @public
+ * */
+const animateToHalfSize = () => {
+  halfSize = true;
+  animateResize.height = window.innerHeight;
+  animateResize.width = window.innerWidth;
+
+  if (is_mobile) {
+    gsap.to(animateResize, {
+      duration: 0.4,
+      height: window.innerHeight / 2,
+      ease: 'power1.inOut',
+      onUpdate: animate_resize
+    });
+  } else {
+    if (left_hand_selected && !is_mobile) {
+      gsap.to(container, { duration: 0.4, x: window.innerWidth / 2, ease: 'power1.inOut' });
+    }
+    gsap.to(animateResize, {
+      duration: 0.4,
+      width: window.innerWidth / 2,
+      ease: 'power1.inOut',
+      onUpdate: animate_resize
+    });
+  }
+};
+
+const animateToNormalSize = () => {
+  halfSize = false;
+  animateResize.width = window.innerWidth / 2;
+  gsap.to(animateResize, {
+    duration: 0.4,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    ease: 'power1.inOut',
+    onUpdate: animate_resize
+  });
+  if (left_hand_selected && !is_mobile) {
+    gsap.to(container, { duration: 0.4, x: 0, ease: 'power1.inOut' });
+  }
+};
+
+export {
+  handScene,
+  animateBackgroundColor,
+  loadHand,
+  changeHandColor,
+  makeLeftHand,
+  makeRightHand,
+  convertLetterToNumber,
+  setNewHand,
+  playHandAnimation,
+  spellLetter,
+  spellSentence,
+  spellPreloaderAnim,
+  stopSpelling,
+  getPositionIn3D,
+  getHand,
+  animateToHalfSize,
+  animateToNormalSize
+};
