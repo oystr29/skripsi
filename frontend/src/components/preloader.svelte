@@ -1,6 +1,14 @@
 <script>
+  import global from '$lib/global';
   import gsap from 'gsap';
   import { onMount } from 'svelte';
+
+  /** @type {import('$lib/handscene') | undefined}*/
+  let hand_scene;
+
+  global.HAND_SCENE.subscribe((v) => {
+    hand_scene = v;
+  });
 
   /**@type {HTMLDivElement}*/
   let preloader;
@@ -23,8 +31,6 @@
 
   const duration = 0.6;
 
-  function onMouseEnter() {}
-
   onMount(() => {
     // set
     gsap.set(logo, { y: -200, opacity: 0 });
@@ -43,6 +49,7 @@
   });
 </script>
 
+/** eslint-disable svelte/valid-compile */
 <div id="Preloader" bind:this={preloader}>
   <div class="home" bind:this={home}>
     <div class="instructionText">
@@ -137,8 +144,104 @@
       <div
         bind:this={startButton}
         class="allowWebcamButton"
+        on:click={(e) => {
+          if (hand_scene) {
+            const posBtn = logo.getBoundingClientRect();
+            const fingerSpellingPos = hand_scene?.getPositionIn3D(posBtn.x, posBtn.y);
+
+            const moveOut = hand_scene.getPositionIn3D(
+              window.innerWidth,
+              window.innerHeight / 2 + 100
+            );
+
+            gsap.to(preloader, {
+              duration: 0.3,
+              delay: 0.0,
+              y: window.innerHeight * 1.3,
+              ease: 'circ.inOut'
+            });
+
+            const hand = hand_scene.getHand();
+            gsap.to(hand.position, {
+              delay: 0.0,
+              duration: 0.3,
+              y: moveOut.y,
+              ease: 'circ.inOut'
+            });
+            gsap.to(hand.rotation, { duration: 0.3, x: 3.14159265 / 2, ease: 'circ.inOut' });
+
+            gsap.to(hand.position, { delay: 0.3, duration: 0.3, y: 0, ease: 'circ.inOut' });
+            gsap.to(hand.rotation, {
+              delay: 0.3,
+              duration: 0.3,
+              x: 0,
+              ease: 'circ.inOut',
+              onComplete: () => {
+                gsap.to(hand.position, { delay: 0.0, duration: 0.3, y: 0, ease: 'circ.out' });
+                gsap.to(hand.rotation, {
+                  delay: 0.0,
+                  duration: 0.3,
+                  x: 0,
+                  y: 0,
+                  z: 0,
+                  ease: 'circ.out'
+                });
+
+                if (hand_scene) {
+                  hand_scene.spellSentence('loading');
+
+                  line2.innerHTML = 'Loading Hand Tracking';
+                  logo.style.display = 'none';
+                  line3.style.display = 'none';
+                  startButton.style.display = 'none';
+                  homeBottomText.style.display = 'none';
+
+                  gsap.set(preloader, { y: 0 });
+                  gsap.set(line2, { x: window.innerWidth * -1, opacity: 1, ease: 'power2.out' });
+                  gsap.to(line2, { duration: 0.4, x: 0, opacity: 1, ease: 'power2.out' });
+                }
+              }
+            });
+          }
+        }}
         on:mouseover={(e) => {
-          const line1 = logo.getBoundingClientRect();
+          if (hand_scene) {
+            hand_scene.stopSpelling();
+
+            const getHand = hand_scene.getHand();
+
+            const getPosLogo = logo.getBoundingClientRect();
+
+            const moveTo = hand_scene.getPositionIn3D(getPosLogo.x, window.innerHeight / 2 - 200);
+
+            gsap.to(getHand.position, { duration: 0.2, y: -moveTo.y, ease: 'power1.inOut' });
+            gsap.to(getHand.rotation, { duration: 0.2, x: 3.14159265 / 2, ease: 'power1.inOut' });
+
+            const target = e.currentTarget;
+            const innerBG = target.querySelector('.innerBG');
+
+            gsap.to(target, { duration: 0.2, backgroundColor: '#ffffff', ease: 'power1.in' });
+            gsap.to(innerBG, { duration: 0.2, x: -0, ease: 'power1.in' });
+          }
+        }}
+        on:mouseout={(e) => {
+          if (hand_scene) {
+            const target = e.currentTarget;
+            const innerBG = target.querySelector('.innerBG');
+
+            const hand = hand_scene.getHand();
+
+            gsap.to(hand.position, { duration: 0.2, y: 0, ease: 'power1.easeOut' });
+
+            gsap.to(hand.rotation, { duration: 0.2, x: 0, ease: 'power1.easeOut' });
+
+            hand_scene.spellSentence('yuju');
+
+            gsap.to(target, { duration: 0.1, backgroundColor: '#ffe090', ease: 'power1.in' });
+            //gsap.to(this._buttonSplitText.chars, { duration: 0.3, skewX: '-1deg', x: 0, force3D: true, ease: 'expo.out', stagger: 0.04 });
+
+            gsap.to(innerBG, { duration: 0.2, x: -360, ease: 'power1.out' });
+          }
         }}
       >
         <div class="innerBG" bind:this={innerBG}></div>
@@ -204,7 +307,7 @@
     width: 324px;
     height: 64px;
     border-radius: 30px;
-    color: #683aff;
+    color: #ff3a3a;
     background-color: #ffe090;
     margin: 40px auto 0 auto;
     line-height: 2.2;

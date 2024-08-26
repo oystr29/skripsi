@@ -1,28 +1,25 @@
-<script>
+<script lang="ts">
   import { dev } from '$app/environment';
+  import type { DrawingOptions } from '@mediapipe/drawing_utils';
   import handd from '@mediapipe/hands';
   const { HAND_CONNECTIONS } = handd;
-  import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
-  // import wasm from '@mediapipe/tasks-vision/wasm';
+  import {
+    FilesetResolver,
+    HandLandmarker,
+    type HandLandmarkerResult
+  } from '@mediapipe/tasks-vision';
   import { onMount } from 'svelte';
 
-  /** @type {HTMLVideoElement | undefined} */
-  let videoEl;
-  /** @type {HTMLCanvasElement | undefined} */
-  let canvasEl;
-  /** @type {CanvasRenderingContext2D | null | undefined} */
-  let canvasCtx;
-  /** @type {HandLandmarker | undefined}*/
-  let handlandmarker;
-  /** @type {import('@mediapipe/tasks-vision').HandLandmarkerResult | undefined} */
-  let results;
+  let videoEl: HTMLVideoElement | undefined;
+  let canvasEl: HTMLCanvasElement | undefined;
+  /** @type {} */
+  let canvasCtx: CanvasRenderingContext2D | null | undefined;
+  /** @type {}*/
+  let handlandmarker: HandLandmarker | undefined;
+  let results: HandLandmarkerResult;
   let lastVideoTime = -1;
 
-  /**
-    @template I
-    @template O
-    @typedef {(input: I) => O} Callback
-  */
+  type Callback<I, O> = (input: I) => O;
 
   /**
     @function
@@ -32,21 +29,17 @@
     @param {I} data
     @returns O
   */
-  function resolve(value, data) {
+  function resolve<O, I>(value: O | Callback<I, O>, data: I): O {
     return value instanceof Function ? value(data) : value;
   }
 
-  /** @type {import('@mediapipe/drawing_utils').DrawingOptions}  */
-  const DEFAULT_OPTIONS = {
+  const DEFAULT_OPTIONS: DrawingOptions = {
     color: 'white',
     lineWidth: 4,
     radius: 6
   };
 
-  /** @param {import('@mediapipe/drawing_utils').DrawingOptions | undefined} style 
-      @returns {import('@mediapipe/drawing_utils').DrawingOptions}
-  */
-  function addDefaultOptions(style) {
+  function addDefaultOptions(style?: DrawingOptions): DrawingOptions {
     style = style || {};
     return {
       ...DEFAULT_OPTIONS,
@@ -70,18 +63,16 @@
         }
         canvasCtx.save();
 
-        canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        canvasCtx.beginPath();
-        canvasCtx.arc(lastVideoTime * 2, 50, 40, 0, 2 * Math.PI);
-        canvasCtx.stroke();
-        if (results?.landmarks) {
+        if (results?.landmarks.length) {
+          const lm = results.landmarks;
+
           for (const landmarks of results.landmarks) {
             // draw connector
             if (!landmarks) {
               return;
             }
             const ctx = canvasCtx;
-            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 5 });
+            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
@@ -93,7 +84,7 @@
 
               if (from && to) {
                 ctx.strokeStyle = resolve(options.color ?? '', { index, from, to });
-                ctx.lineWidth = resolve(options.lineWidth ?? 5, { index, from, to });
+                ctx.lineWidth = resolve(options.lineWidth ?? 1, { index, from, to });
                 ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
                 ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
               }
@@ -102,7 +93,7 @@
             }
 
             // draw landmarks
-            const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 2 });
+            const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 0 });
             ctx.save();
             const canvasLandmarks = ctx.canvas;
             let indexLandmarks = 0;
@@ -117,7 +108,7 @@
                 index: indexLandmarks,
                 from: landmark
               });
-              ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 5, {
+              ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 0, {
                 index: indexLandmarks,
                 from: landmark
               });
@@ -127,12 +118,12 @@
               circle.arc(
                 landmark.x * canvasLandmarks.width,
                 landmark.y * canvasLandmarks.height,
-                resolve(optionLandmarks.radius ?? 2, { index: indexLandmarks, from: landmark }),
+                resolve(optionLandmarks.radius ?? 1, { index: indexLandmarks, from: landmark }),
                 0,
                 2 * Math.PI
               );
-              ctx.fill(circle);
-              ctx.stroke(circle);
+              /* ctx.fill(circle);
+              ctx.stroke(circle); */
               ++indexLandmarks;
             }
 
@@ -167,7 +158,8 @@
         delegate: 'GPU'
       },
       runningMode: 'VIDEO',
-      numHands: 2
+      numHands: 2,
+      minHandDetectionConfidence: 0.25
     });
 
     /*     hands = new Hands({
@@ -190,18 +182,51 @@
   });
 </script>
 
-<div class="bg-black relative">
-  <video bind:this={videoEl} autoplay playsinline class="absolute" id="video">
-    <track kind="captions" />
-  </video>
-  <div class="absolute z-40"></div>
-  <canvas class="output_canvas absolute top-0 left-0 z-50" bind:this={canvasEl}></canvas>
-</div>
+<svelte:head>
+  <title>Level 1</title>
+</svelte:head>
+
+<main class="flex flex-1">
+  <div class="basis-1/3 bg-white text-black h-screen">makan</div>
+  <div class="basis-2/3 relative">
+    <div class="video-container">
+      <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
+        <track kind="captions" />
+      </video>
+    </div>
+    <div class="video-container">
+      <canvas class="video absolute top-0 left-0 z-50" bind:this={canvasEl}></canvas>
+    </div>
+    <div class="video-container">
+      <div class="video bg-black/70"></div>
+    </div>
+  </div>
+</main>
 
 <style>
-  #video {
-    transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-    -moz-transform: rotateY(180deg); /* Firefox */
+  .video-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .video-container .video {
+    /* Make video to at least 100% wide and tall */
+    min-width: 100%;
+    min-height: 100%;
+
+    /* Setting width & height to auto prevents the browser from stretching or squishing the video */
+    width: auto;
+    height: auto;
+
+    /* Center the video */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateY(180deg);
+    -webkit-transform: translate(-50%, -50%) rotateY(180deg);
+    -moz-transform: translate(-50%, -50%) rotateY(180deg);
   }
 </style>

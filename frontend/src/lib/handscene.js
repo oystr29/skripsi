@@ -62,7 +62,7 @@ let isRightHand = true;
 /** @type {HTMLDivElement}*/
 let container;
 
-let currentBGColor = { color: 0x413aff };
+let currentBGColor = { color: 0xff3a3a };
 
 // let isSpelling = false;
 
@@ -135,7 +135,6 @@ function animateBackgroundColor(newColor) {
 /**@function
  * @param {import('three/examples/jsm/Addons.js').GLTF} gltf */
 function onLoadHand(gltf) {
-  console.log(gltf);
   const child = gltf.scene.children[0];
 
   const dirLight3 = new THREE.SpotLight(0xffffff);
@@ -151,7 +150,7 @@ function onLoadHand(gltf) {
   // @ts-ignore
   handMaterial = child.children[1].children[0].material;
   // console.log(handMaterial);
-  handMaterial.color.setHex(0x413aff);
+  handMaterial.color.setHex(0xff3a3a);
   handMaterial.roughness = 0.45;
   handMaterial.metalness = 0.0;
 
@@ -194,7 +193,7 @@ function onLoadHand(gltf) {
 
   gsap.to(hand.position, { delay: 1, duration: 1, z: 50, ease: 'power3.out' });
 
-  spellSentence('yoga');
+  spellSentence('sowon');
 }
 
 /**
@@ -218,6 +217,10 @@ function loadHand(loadHandCallback, onProgressCallback) {
     },
     (err) => console.log(err)
   );
+
+  /* loader.load('/test.glb', (gltf) => {
+    scene.add(gltf.scene);
+  }); */
 }
 
 function onWindowResize() {
@@ -377,6 +380,8 @@ const setNewHand = (count, onCompleteCallback) => {
         playHandAnimation(count);
       }
     } else if (previousLetter === 7 && count === 5) {
+      console.log('previousletter === 7 && count === 5');
+      console.log(currentAnimation);
       animTime = 1 * global.GAME_SETTINGS.handSpellSlowdown * 1;
       // From G to E
       gsap.to(currentAnimation, {
@@ -536,7 +541,6 @@ const spellSentence = (sentence) => {
     const letterToNumber = convertLetterToNumber(currentLetter);
     sentenceArray.push(letterToNumber);
   }
-  console.log(sentenceArray);
 
   currentWordInSentenceCount = 0;
   nextLetter();
@@ -573,11 +577,12 @@ const stopSpelling = () => {
   gsap.killTweensOf(animationMixes[0]);
   gsap.killTweensOf(animationMixes);
 
-  if (in_game) {
-    gsap.to(hand.position, { delay: 0.0, duration: 0.3, x: 0 });
+  if (!in_game) {
+    // @ts-ignore
+    gsap.to(hand.position, { delay: 0.0, duration: 0.3, x: 0, onComplete: null });
   }
 
-  gsap.to(animationMixes, { duration: 0.3 });
+  gsap.to(animationMixes, { duration: 0.3, weight: 0 });
   currentAnimation = null;
   movedToLeft = false;
 };
