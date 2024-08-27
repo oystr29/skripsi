@@ -39,16 +39,16 @@ if results.multi_hand_landmarks:
         hand_data_points.append(hand_data_point)
 
          # Load saved Model
-    model_path = 'asl_fingerspelling_model.pkl'
+    model_path = 'bisindo_fingerspelling_model.pkl'
     zero = []
     for i in range(63):
         zero.append(0.0)
     if len(hand_data_points) == 1:
         hand_data_points[0] += zero
-        modal_path = 'asl_fingerspelling_model_1.pkl'
+        modal_path = 'bisindo_fingerspelling_model_1.pkl'
     elif len(hand_data_points) == 2:
         hand_data_points = [hand_data_points[0] + hand_data_points[1]]
-        modal_path = 'asl_fingerspelling_model_2.pkl'
+        modal_path = 'bisindo_fingerspelling_model_2.pkl'
     print(hand_data_points)
     hand_data_points = np.array(hand_data_points)
     hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
