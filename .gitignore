@@ -9,4 +9,4 @@ model/image_dataset
 model/image_dataset/train
 model/image_dataset/val
 model/static
-model/*.pkl
+*.pkl
