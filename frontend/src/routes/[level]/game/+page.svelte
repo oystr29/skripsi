@@ -6,9 +6,17 @@
   import {
     FilesetResolver,
     HandLandmarker,
-    type HandLandmarkerResult
+    type HandLandmarkerResult,
+    type NormalizedLandmark
   } from '@mediapipe/tasks-vision';
+  import { createMutation, createQuery } from '@tanstack/svelte-query';
   import { onMount } from 'svelte';
+  import axios from 'axios';
+  import { handlandmarkerStore } from '$lib/store';
+  import type { PageData } from '../$types';
+  import { env } from '$env/dynamic/public';
+
+  export let data: PageData;
 
   let videoEl: HTMLVideoElement | undefined;
   let canvasEl: HTMLCanvasElement | undefined;
@@ -16,6 +24,9 @@
   let canvasCtx: CanvasRenderingContext2D | null | undefined;
   /** @type {}*/
   let handlandmarker: HandLandmarker | undefined;
+  handlandmarkerStore.subscribe((v) => {
+    handlandmarker = v;
+  });
   let results: HandLandmarkerResult;
   let lastVideoTime = -1;
 
@@ -48,6 +59,50 @@
     };
   }
 
+  let currIndexWords = 0;
+  let currIndexLetters = 0;
+  let message = '';
+
+  const query = createQuery({
+    queryKey: ['words', data.level],
+    queryFn: async () => {
+      const res = await axios(`${env.PUBLIC_BASE_API}/words/${data.level}`);
+
+      return res.data as { letters: string[]; words: string[] };
+    }
+  });
+  const mutate = createMutation({
+    mutationFn: async (variables: { results: NormalizedLandmark[][]; letter: string }) => {
+      const res = await axios.post(`${env.PUBLIC_BASE_API}/detect`, variables, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: '*/*'
+        }
+      });
+      return res.data as { message: string };
+    },
+    onSuccess: (res) => {
+      // detect if not last word
+      if (
+        $query.data &&
+        $query.data.words.length - 1 === currIndexWords &&
+        $query.data.words[currIndexWords].length - 1 === currIndexLetters
+      ) {
+        // end
+        return;
+      }
+
+      if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
+        currIndexWords += 1;
+        currIndexLetters = 0;
+        return;
+      }
+
+      currIndexLetters += 1;
+    },
+    onError: (e) => console.error(e)
+  });
+
   onMount(async () => {
     async function predictWebcam() {
       if (canvasEl && videoEl && handlandmarker && canvasCtx) {
@@ -65,6 +120,13 @@
 
         if (results?.landmarks.length) {
           const lm = results.landmarks;
+
+          if (!$mutate.isPending) {
+            $mutate.mutate({
+              results: lm,
+              letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
+            });
+          }
 
           for (const landmarks of results.landmarks) {
             // draw connector
@@ -145,22 +207,23 @@
     // Before we can use HandLandmarker class we must wait for it to finish
     // loading. Machine Learning models can be large and take a moment to
     // get everything needed to run.
-    const vision = await FilesetResolver.forVisionTasks(
-      // wasm
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
-    );
+    if (!handlandmarker) {
+      const vision = await FilesetResolver.forVisionTasks(
+        // wasm
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      );
 
-    handlandmarker = await HandLandmarker.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: dev
-          ? '/hand_landmarker.task'
-          : `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
-        delegate: 'GPU'
-      },
-      runningMode: 'VIDEO',
-      numHands: 2,
-      minHandDetectionConfidence: 0.25
-    });
+      handlandmarker = await HandLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: dev
+            ? '/hand_landmarker.task'
+            : `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO',
+        numHands: 2
+      });
+    }
 
     /*     hands = new Hands({
       locateFile: (file) => {
@@ -168,7 +231,6 @@
       }
     }); */
 
-    // Demo 1: Continuously grab image from
     //stream and detect it.
     console.log('aku pertama');
     canvasCtx = canvasEl?.getContext('2d');
@@ -183,22 +245,34 @@
 </script>
 
 <svelte:head>
-  <title>Level 1</title>
+  <title>Game Level 1</title>
 </svelte:head>
 
 <main class="flex flex-1">
-  <div class="basis-1/3 bg-white text-black h-screen">makan</div>
+  <div class="basis-1/3 bg-white text-black h-screen">
+    <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
+      <div class="text-2xl font-semibold">Ikuti Huruf</div>
+      <div class="text-9xl font-bold text-blue-500">
+        {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+      </div>
+      <div class="text-4xl font-bold">
+        {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
+          <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
+        {/each}
+      </div>
+    </div>
+  </div>
   <div class="basis-2/3 relative">
     <div class="video-container">
       <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
         <track kind="captions" />
       </video>
     </div>
-    <div class="video-container">
+    <div class="video-container z-50">
       <canvas class="video absolute top-0 left-0 z-50" bind:this={canvasEl}></canvas>
     </div>
-    <div class="video-container">
-      <div class="video bg-black/70"></div>
+    <div class="video-container z-20">
+      <div class="video bg-black/70 z-20"></div>
     </div>
   </div>
 </main>

@@ -1,12 +1,12 @@
 import cv2
-import mediapipe as mp
+from mediapipe.python.solutions import drawing_utils
+from mediapipe.python.solutions.hands import Hands
 import numpy as np
 import joblib
 
 # MediaPipe Hands init
-mpHands = mp.solutions.hands
-hands = mpHands.Hands(max_num_hands=2, min_detection_confidence=0.2)
-mpDraw = mp.solutions.drawing_utils
+hands = Hands(max_num_hands=2, min_detection_confidence=0.2)
+mpDraw = drawing_utils
 
 
 cap = cv2.VideoCapture(1)
@@ -58,6 +58,7 @@ while cap.isOpened():
             elif len(hand_data_points) == 2:
                 hand_data_points = [hand_data_points[0] + hand_data_points[1]]
                 modal_path = 'asl_fingerspelling_model_2.pkl'
+            print(hand_data_points)
             hand_data_points = np.array(hand_data_points)
             hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
 

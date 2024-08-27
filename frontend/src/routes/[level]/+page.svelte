@@ -3,6 +3,10 @@
   export let data;
 </script>
 
+<svelte:head>
+  <title>Level 1</title>
+</svelte:head>
+
 <header class="fixed p-2 w-full">
   <nav class="container mx-2 md:mx-auto flex items-center justify-center">
     <div class="font-bold text-4xl text-white">ISYARAT BISINDO</div>
