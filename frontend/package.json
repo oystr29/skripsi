@@ -46,6 +46,9 @@
 		"bits-ui": "^0.21.13",
 		"clsx": "^2.1.1",
 		"gsap": "^3.12.5",
+		"mode-watcher": "^0.4.1",
+		"svelte-radix": "^1.1.1",
+		"svelte-sonner": "^0.3.27",
 		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1",
 		"three": "^0.167.1"

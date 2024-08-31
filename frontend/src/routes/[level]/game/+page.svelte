@@ -1,7 +1,7 @@
 <script lang="ts">
   import { dev } from '$app/environment';
-  import type { DrawingOptions } from '@mediapipe/drawing_utils';
   import handd from '@mediapipe/hands';
+  import { deviceIdStore } from '$lib/store';
   const { HAND_CONNECTIONS } = handd;
   import {
     FilesetResolver,
@@ -9,12 +9,15 @@
     type HandLandmarkerResult,
     type NormalizedLandmark
   } from '@mediapipe/tasks-vision';
+  import type { DrawingOptions } from '@mediapipe/drawing_utils';
   import { createMutation, createQuery } from '@tanstack/svelte-query';
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { handlandmarkerStore } from '$lib/store';
   import type { PageData } from '../$types';
   import { env } from '$env/dynamic/public';
+  import Alertime from '@/components/alertime.svelte';
+  import Circleprogress from '@/components/circleprogress.svelte';
 
   export let data: PageData;
 
@@ -59,9 +62,41 @@
     };
   }
 
+  let video: MediaTrackConstraints | undefined;
+  let dialogOpen = true;
+
+  let seconds = 5;
+  let interval: number;
+  let state: 'idle' | 'run' | 'correct' | 'wrong' | 'fetching' = 'idle';
+
+  const startInterval = () => {
+    clearInterval(interval);
+    interval = setInterval(() => {
+      seconds -= 0.1;
+      if (seconds >= 0) return;
+      // run
+      if (!$mutate.isPending && seconds <= 0 && state === 'run') {
+        $mutate.mutate({
+          results: results.landmarks,
+          letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
+        });
+        // clearInterval(interval);
+      } else if (
+        ($mutate.isSuccess || $mutate.isError) &&
+        seconds <= 0 &&
+        (state === 'correct' || state === 'wrong')
+      ) {
+        seconds = 5;
+        state = results.landmarks && !dialogOpen ? 'run' : 'idle';
+        if (dialogOpen) {
+          clearInterval(interval);
+        }
+      }
+    }, 100);
+  };
+
   let currIndexWords = 0;
   let currIndexLetters = 0;
-  let message = '';
 
   const query = createQuery({
     queryKey: ['words', data.level],
@@ -71,6 +106,7 @@
       return res.data as { letters: string[]; words: string[] };
     }
   });
+
   const mutate = createMutation({
     mutationFn: async (variables: { results: NormalizedLandmark[][]; letter: string }) => {
       const res = await axios.post(`${env.PUBLIC_BASE_API}/detect`, variables, {
@@ -81,7 +117,12 @@
       });
       return res.data as { message: string };
     },
-    onSuccess: (res) => {
+    onMutate: async () => {
+      seconds = 1;
+      state = 'fetching';
+      // startInterval();
+    },
+    onSuccess: async () => {
       // detect if not last word
       if (
         $query.data &&
@@ -92,118 +133,148 @@
         return;
       }
 
+      // Ubah Kata
       if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
         currIndexWords += 1;
         currIndexLetters = 0;
+        seconds = 1;
+        state = 'correct';
+        startInterval();
+        dialogOpen = true;
         return;
       }
 
+      // Ubah Huruf dari kata
       currIndexLetters += 1;
+      seconds = 1;
+      state = 'correct';
+      // startInterval();
     },
-    onError: (e) => console.error(e)
+    onError: async (e) => {
+      seconds = 1;
+      state = 'wrong';
+      startInterval();
+      console.error(e);
+    }
   });
 
-  onMount(async () => {
-    async function predictWebcam() {
-      if (canvasEl && videoEl && handlandmarker && canvasCtx) {
-        canvasEl.style.width = `${videoEl.videoWidth}`;
-        canvasEl.style.height = `${videoEl.videoHeight}`;
-        canvasEl.width = videoEl.videoWidth;
-        canvasEl.height = videoEl.videoHeight;
+  async function predictWebcam() {
+    if (canvasEl && videoEl && handlandmarker && canvasCtx) {
+      if (!video) {
+        video = { width: videoEl.videoWidth, height: videoEl.videoHeight };
+      }
+      canvasEl.style.width = `${videoEl.videoWidth}`;
+      canvasEl.style.height = `${videoEl.videoHeight}`;
+      canvasEl.width = videoEl.videoWidth;
+      canvasEl.height = videoEl.videoHeight;
 
-        let startTimeMs = performance.now();
-        if (lastVideoTime != videoEl.currentTime) {
-          lastVideoTime = videoEl.currentTime;
-          results = handlandmarker.detectForVideo(videoEl, startTimeMs);
+      let startTimeMs = performance.now();
+      if (lastVideoTime != videoEl.currentTime) {
+        lastVideoTime = videoEl.currentTime;
+        results = handlandmarker.detectForVideo(videoEl, startTimeMs);
+      }
+      canvasCtx.save();
+
+      // Stop kalau tangannya hilang
+      if (!results?.landmarks.length && state === 'run') {
+        clearInterval(interval);
+        state = 'idle';
+        seconds = 5;
+      }
+
+      if (results?.landmarks.length && !dialogOpen) {
+        if (state === 'idle') {
+          startInterval();
+          state = 'run';
         }
-        canvasCtx.save();
 
-        if (results?.landmarks.length) {
-          const lm = results.landmarks;
+        /*         if (!$mutate.isPending && seconds <= 0 && state === 'run') {
+          $mutate.mutate({
+            results: lm,
+            letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
+          });
+          seconds = 5;
+          state = 'fetching';
+        } */
 
-          if (!$mutate.isPending) {
-            $mutate.mutate({
-              results: lm,
-              letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
-            });
+        for (const landmarks of results.landmarks) {
+          // draw connector
+          if (!landmarks) {
+            return;
+          }
+          const ctx = canvasCtx;
+          const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
+          ctx.save();
+          const canvas = ctx.canvas;
+          let index = 0;
+          for (const connection of HAND_CONNECTIONS) {
+            ctx.beginPath();
+            const [start, end] = connection;
+            const from = landmarks[start];
+            const to = landmarks[end];
+
+            if (from && to) {
+              ctx.strokeStyle = resolve(options.color ?? '', { index, from, to });
+              ctx.lineWidth = resolve(options.lineWidth ?? 1, { index, from, to });
+              ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
+              ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+            }
+            ++index;
+            ctx.stroke();
           }
 
-          for (const landmarks of results.landmarks) {
-            // draw connector
-            if (!landmarks) {
-              return;
-            }
-            const ctx = canvasCtx;
-            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
-            ctx.save();
-            const canvas = ctx.canvas;
-            let index = 0;
-            for (const connection of HAND_CONNECTIONS) {
-              ctx.beginPath();
-              const [start, end] = connection;
-              const from = landmarks[start];
-              const to = landmarks[end];
+          // draw landmarks
+          const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 0 });
+          ctx.save();
+          const canvasLandmarks = ctx.canvas;
+          let indexLandmarks = 0;
+          for (const landmark of landmarks) {
+            // All of our points are normalized, so we need to scale the unit canvas
+            // to match our actual canvas size.
+            ctx.fillStyle = resolve(optionLandmarks.fillColor ?? '#00ff00', {
+              index: indexLandmarks,
+              from: landmark
+            });
+            ctx.strokeStyle = resolve(optionLandmarks.color ?? '#ffffff', {
+              index: indexLandmarks,
+              from: landmark
+            });
+            ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 0, {
+              index: indexLandmarks,
+              from: landmark
+            });
 
-              if (from && to) {
-                ctx.strokeStyle = resolve(options.color ?? '', { index, from, to });
-                ctx.lineWidth = resolve(options.lineWidth ?? 1, { index, from, to });
-                ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
-                ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
-              }
-              ++index;
-              ctx.stroke();
-            }
-
-            // draw landmarks
-            const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 0 });
-            ctx.save();
-            const canvasLandmarks = ctx.canvas;
-            let indexLandmarks = 0;
-            for (const landmark of landmarks) {
-              // All of our points are normalized, so we need to scale the unit canvas
-              // to match our actual canvas size.
-              ctx.fillStyle = resolve(optionLandmarks.fillColor ?? '#00ff00', {
-                index: indexLandmarks,
-                from: landmark
-              });
-              ctx.strokeStyle = resolve(optionLandmarks.color ?? '#ffffff', {
-                index: indexLandmarks,
-                from: landmark
-              });
-              ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 0, {
-                index: indexLandmarks,
-                from: landmark
-              });
-
-              const circle = new Path2D();
-              // Decrease the size of the arc to compensate for the scale()
-              circle.arc(
-                landmark.x * canvasLandmarks.width,
-                landmark.y * canvasLandmarks.height,
-                resolve(optionLandmarks.radius ?? 1, { index: indexLandmarks, from: landmark }),
-                0,
-                2 * Math.PI
-              );
-              /* ctx.fill(circle);
+            const circle = new Path2D();
+            // Decrease the size of the arc to compensate for the scale()
+            circle.arc(
+              landmark.x * canvasLandmarks.width,
+              landmark.y * canvasLandmarks.height,
+              resolve(optionLandmarks.radius ?? 1, { index: indexLandmarks, from: landmark }),
+              0,
+              2 * Math.PI
+            );
+            /* ctx.fill(circle);
               ctx.stroke(circle); */
-              ++indexLandmarks;
-            }
+            ++indexLandmarks;
+          }
 
-            /*             drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+          /*             drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
               color: '#00FF00',
               lineWidth: 5
             }); */
-            /*             drawLandmarks(canvasCtx, landmarks, {
+          /*             drawLandmarks(canvasCtx, landmarks, {
               color: '#FF0000',
               lineWidth: 2
             }); */
-          }
         }
-
-        canvasCtx.restore();
-        requestAnimationFrame(predictWebcam);
       }
+
+      canvasCtx.restore();
+      requestAnimationFrame(predictWebcam);
     }
+  }
+
+  onMount(async () => {
     // Before we can use HandLandmarker class we must wait for it to finish
     // loading. Machine Learning models can be large and take a moment to
     // get everything needed to run.
@@ -224,23 +295,17 @@
         numHands: 2
       });
     }
-
-    /*     hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }
-    }); */
-
     //stream and detect it.
-    console.log('aku pertama');
     canvasCtx = canvasEl?.getContext('2d');
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoEl) {
-        videoEl.srcObject = stream;
-        videoEl.addEventListener('loadeddata', predictWebcam);
-      }
-    });
+    navigator.mediaDevices
+      .getUserMedia({ video: $deviceIdStore ? { deviceId: { exact: $deviceIdStore } } : true })
+      .then((stream) => {
+        if (videoEl) {
+          videoEl.srcObject = stream;
+          videoEl.addEventListener('loadeddata', predictWebcam);
+        }
+      });
   });
 </script>
 
@@ -248,8 +313,18 @@
   <title>Game Level 1</title>
 </svelte:head>
 
-<main class="flex flex-1">
-  <div class="basis-1/3 bg-white text-black h-screen">
+{#if $query.data}
+  <Alertime
+    {dialogOpen}
+    text={$query.data?.words[currIndexWords]}
+    onClose={() => {
+      dialogOpen = false;
+    }}
+  />
+{/if}
+
+<main class="flex flex-1 flex-wrap">
+  <div class="basis-1/3 bg-white text-black md:h-screen">
     <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
       <div class="text-2xl font-semibold">Ikuti Huruf</div>
       <div class="text-9xl font-bold text-blue-500">
@@ -263,7 +338,11 @@
     </div>
   </div>
   <div class="basis-2/3 relative">
+    <div class="absolute right-2 top-1 z-[60]"></div>
     <div class="video-container">
+      <div class="absolute z-30 w-28 h-28 left-2 bottom-2">
+        <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+      </div>
       <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
         <track kind="captions" />
       </video>

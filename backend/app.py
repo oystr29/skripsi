@@ -13,6 +13,7 @@ data_text = {
         'words': [
             'LOVE',
             'OLI',
+            'JELI',
             'REL',
             'ULUR',
             'LECI',
