@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-  <title>Level 1</title>
+  <title>Level {data.level}</title>
 </svelte:head>
 
 <header class="fixed p-2 w-full">

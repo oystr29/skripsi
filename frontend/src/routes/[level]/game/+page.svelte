@@ -16,8 +16,10 @@
   import { handlandmarkerStore } from '$lib/store';
   import type { PageData } from '../$types';
   import { env } from '$env/dynamic/public';
-  import Alertime from '@/components/alertime.svelte';
-  import Circleprogress from '@/components/circleprogress.svelte';
+  import Alertime from '$lib/components/alertime.svelte';
+  import Circleprogress from '$lib/components/circleprogress.svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { ChevronRight } from 'svelte-radix';
 
   export let data: PageData;
 
@@ -310,7 +312,7 @@
 </script>
 
 <svelte:head>
-  <title>Game Level 1</title>
+  <title>Game Level {data.level}</title>
 </svelte:head>
 
 {#if $query.data}
@@ -324,7 +326,7 @@
 {/if}
 
 <main class="flex flex-1 flex-wrap">
-  <div class="basis-1/3 bg-white text-black md:h-screen">
+  <div class="basis-1/3 bg-white text-black md:h-screen relative">
     <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
       <div class="text-2xl font-semibold">Ikuti Huruf</div>
       <div class="text-9xl font-bold text-blue-500">
@@ -335,6 +337,25 @@
           <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
         {/each}
       </div>
+      <Button
+        class="absolute right-2 bottom-2"
+        variant="secondary"
+        type="button"
+        on:click={() => {
+          if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
+            currIndexWords += 1;
+            currIndexLetters = 0;
+            seconds = 5;
+            dialogOpen = true;
+            return;
+          }
+          currIndexLetters += 1;
+          seconds = 5;
+        }}
+      >
+        <ChevronRight class="mr-2" />
+        Skip Huruf
+      </Button>
     </div>
   </div>
   <div class="basis-2/3 relative">

@@ -34,6 +34,9 @@
       class="indicator transition-all absolute w-full h-2 bg-blue-700"
     ></div>
     <AlertDialog.Header>
+      <AlertDialog.Title class="text-lg text-center text-gray-500"
+        >Kata Selanjutnya:</AlertDialog.Title
+      >
       <AlertDialog.Title class="text-5xl text-center">{text}</AlertDialog.Title>
     </AlertDialog.Header>
     <AlertDialog.Footer>
