@@ -83,14 +83,19 @@ if isTwo():
 elif isOne():
     model_name = 'asl_fingerspelling_model_1.pkl'
 
-joblib.dump(model, model_name)
+# joblib.dump(model, model_name)
 
 # Model Evaluation using the Test Set
 y_pred = model.predict(test_data.reshape(test_data.shape[0], -1))
 report = classification_report(test_labels, y_pred)
 
+print(test_labels)
+print('----------------')
+print(y_pred)
+
+
 # Print the report to a file
-if isTwo():
+""" if isTwo():
     with open('model_evaluation_report_2.txt', 'w') as f:
         print(report, file=f)
 elif isOne():
@@ -98,4 +103,4 @@ elif isOne():
         print(report, file=f)
 else:
     with open('model_evaluation_report.txt', 'w') as f:
-        print(report, file=f)
+        print(report, file=f) """

@@ -90,15 +90,21 @@ Jika sudah, akan tergenerate folder `dataset_text`.
 │   │   │   ├── 📁.....
 ```
 
-Setelah itu, jalankan file `fingerspelling_model_creation.py` untuk membuat model dan evaluasi.
+Setelah itu, jalankan file `fingerspelling_model_creation.py <jumlah>` untuk membuat model dan evaluasi.
+
+```bash
+python fingerspelling_model_creation 1 // untuk satu tangan
+python fingerspelling_model_creation 2 // untuk dua tangan
+```
+
+Outpunya bakal kayak dibawah ini
+
 ```bash
 ├── 📁model
-│   ├── 📃model_evaluation_report.txt
 │   ├── 📃model_evaluation_report_1.txt
 │   ├── 📃model_evaluation_report_2.txt
-│   ├── 📃bisindo_fingerspelling_model.txt
-│   ├── 📃bisindo_fingerspelling_model_1.txt
-│   ├── 📃bisindo_fingerspelling_model_2.txt
+│   ├── 📃bisindo_fingerspelling_model_1.pkl
+│   ├── 📃bisindo_fingerspelling_model_2.pkl
 ```
 
 Setelah ini kalian bisa memilih mau menjalankan file `fingerspelling.py` atau `fingerspelling-image.py`

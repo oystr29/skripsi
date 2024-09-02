@@ -1,6 +1,7 @@
 import cv2
 from mediapipe.python.solutions import drawing_utils
 from mediapipe.python.solutions.hands import Hands
+from sklearn.metrics import accuracy_score  # Import accuracy_score to evaluate the model
 import numpy as np
 import joblib
 
@@ -8,7 +9,7 @@ import joblib
 hands = Hands(max_num_hands=2, min_detection_confidence=0.2)
 mpDraw = drawing_utils
 
-path = './image_dataset/val/A/augmented_image_0.jpg'
+path = './image_dataset/val/Q/flip004.jpg'
 src = cv2.imread(path)
 image = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
 results = hands.process(image)
@@ -55,6 +56,7 @@ if results.multi_hand_landmarks:
 
     model = joblib.load(model_path)
     prediction = model.predict(hand_data_points)
+    # accuracy = accuracy_score(model, prediction)
     print(prediction)
 
     predicted_letter = prediction[0]

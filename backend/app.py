@@ -22,7 +22,10 @@ data_text = {
     '2': {
         'letters': ['A', 'B', 'D', 'F', 'G', 'H', 'K', 'M', 'N', 'P', 'Q'  ],
         'words': [
-            'BS'
+            'BAN',
+            'DAMI',
+            'FANA',
+            'QALBU'
         ]
     }
 }
@@ -71,15 +74,26 @@ def detect():
         model_path = 'bisindo_fingerspelling_model_2.pkl'
     hand_data_points = np.array(hand_data_points)
     hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
-    print(hand_data_points)
+    # print(hand_data_points)
 
     model = joblib.load(model_path)
 
     prediction = model.predict(hand_data_points)
+    emoji =  '✅' if letter == prediction[0] else '❌'
+    print(f"""
+    --------------------------
+    |
+    | INPUT: {letter}
+    | OUTPUT: {prediction[0]}
+    | {emoji}
+    |
+    ---------------------------
+    """)
 
     if letter != prediction[0]:
         abort(500, 'Error gan')
-
+    
+    print(f'prediction: {prediction[0]}')
     return {
         'message': 'Berhasil Detect Huruf',
     } 
