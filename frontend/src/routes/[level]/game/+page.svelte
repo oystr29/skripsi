@@ -1,8 +1,7 @@
 <script lang="ts">
   import { dev } from '$app/environment';
-  import handd from '@mediapipe/hands';
+  import { HAND_CONNECTIONS } from '$lib/hand_connection';
   import { deviceIdStore } from '$lib/store';
-  const { HAND_CONNECTIONS } = handd;
   import {
     FilesetResolver,
     HandLandmarker,
