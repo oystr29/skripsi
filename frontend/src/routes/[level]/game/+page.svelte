@@ -191,21 +191,13 @@
           seconds = 5;
         }
 
-        if (results?.landmarks.length && !dialogOpen && !levelEnd) {
+        if (results?.landmarks && !dialogOpen && !levelEnd) {
           if (state === 'idle') {
             startInterval();
             state = 'run';
           }
 
-          /*         if (!$mutate.isPending && seconds <= 0 && state === 'run') {
-          $mutate.mutate({
-            results: lm,
-            letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
-          });
-          seconds = 5;
-          state = 'fetching';
-        } */
-
+          console.log(`result.landmarks: ${results.landmarks}`);
           for (const landmarks of results.landmarks) {
             // draw connector
             if (!landmarks) {
@@ -216,6 +208,7 @@
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
+            console.log(`HAND_CONNECTIONS: ${HAND_CONNECTIONS}`);
             for (const connection of HAND_CONNECTIONS) {
               ctx.beginPath();
               const [start, end] = connection;
@@ -237,6 +230,7 @@
             ctx.save();
             const canvasLandmarks = ctx.canvas;
             let indexLandmarks = 0;
+            console.log(`landmark: ${landmarks}`);
             for (const landmark of landmarks) {
               // All of our points are normalized, so we need to scale the unit canvas
               // to match our actual canvas size.
