@@ -1,4 +1,4 @@
-export const HAND_CONNECTIONs = [
+export const HAND_CONNECTIONS = [
   [0, 1],
   [1, 2],
   [2, 3],
