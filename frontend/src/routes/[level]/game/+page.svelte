@@ -20,6 +20,8 @@
   import Circleprogress from '$lib/components/circleprogress.svelte';
   import { Button } from '$lib/components/ui/button';
   import { ChevronRight } from 'svelte-radix';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
+  import { goto } from '$app/navigation';
 
   export let data: PageData;
 
@@ -66,6 +68,7 @@
 
   let video: MediaTrackConstraints | undefined;
   let dialogOpen = true;
+  let levelEnd = false;
 
   let seconds = 5;
   let interval: number;
@@ -132,6 +135,9 @@
         $query.data.words[currIndexWords].length - 1 === currIndexLetters
       ) {
         // end
+        levelEnd = true;
+        clearInterval(interval);
+        state = 'idle';
         return;
       }
 
@@ -161,36 +167,37 @@
   });
 
   async function predictWebcam() {
-    if (canvasEl && videoEl && handlandmarker && canvasCtx) {
-      if (!video) {
-        video = { width: videoEl.videoWidth, height: videoEl.videoHeight };
-      }
-      canvasEl.style.width = `${videoEl.videoWidth}`;
-      canvasEl.style.height = `${videoEl.videoHeight}`;
-      canvasEl.width = videoEl.videoWidth;
-      canvasEl.height = videoEl.videoHeight;
+    try {
+      if (canvasEl && videoEl && handlandmarker && canvasCtx) {
+        if (!video) {
+          video = { width: videoEl.videoWidth, height: videoEl.videoHeight };
+        }
+        canvasEl.style.width = `${videoEl.videoWidth}`;
+        canvasEl.style.height = `${videoEl.videoHeight}`;
+        canvasEl.width = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
 
-      let startTimeMs = performance.now();
-      if (lastVideoTime != videoEl.currentTime) {
-        lastVideoTime = videoEl.currentTime;
-        results = handlandmarker.detectForVideo(videoEl, startTimeMs);
-      }
-      canvasCtx.save();
+        let startTimeMs = performance.now();
+        if (lastVideoTime != videoEl.currentTime) {
+          lastVideoTime = videoEl.currentTime;
+          results = handlandmarker.detectForVideo(videoEl, startTimeMs);
+        }
+        canvasCtx.save();
 
-      // Stop kalau tangannya hilang
-      if (!results?.landmarks.length && state === 'run') {
-        clearInterval(interval);
-        state = 'idle';
-        seconds = 5;
-      }
-
-      if (results?.landmarks.length && !dialogOpen) {
-        if (state === 'idle') {
-          startInterval();
-          state = 'run';
+        // Stop kalau tangannya hilang
+        if (!results?.landmarks.length && state === 'run') {
+          clearInterval(interval);
+          state = 'idle';
+          seconds = 5;
         }
 
-        /*         if (!$mutate.isPending && seconds <= 0 && state === 'run') {
+        if (results?.landmarks.length && !dialogOpen && !levelEnd) {
+          if (state === 'idle') {
+            startInterval();
+            state = 'run';
+          }
+
+          /*         if (!$mutate.isPending && seconds <= 0 && state === 'run') {
           $mutate.mutate({
             results: lm,
             letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
@@ -199,80 +206,83 @@
           state = 'fetching';
         } */
 
-        for (const landmarks of results.landmarks) {
-          // draw connector
-          if (!landmarks) {
-            return;
-          }
-          const ctx = canvasCtx;
-          const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
-          ctx.save();
-          const canvas = ctx.canvas;
-          let index = 0;
-          for (const connection of HAND_CONNECTIONS) {
-            ctx.beginPath();
-            const [start, end] = connection;
-            const from = landmarks[start];
-            const to = landmarks[end];
-
-            if (from && to) {
-              ctx.strokeStyle = resolve(options.color ?? '', { index, from, to });
-              ctx.lineWidth = resolve(options.lineWidth ?? 1, { index, from, to });
-              ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
-              ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+          for (const landmarks of results.landmarks) {
+            // draw connector
+            if (!landmarks) {
+              return;
             }
-            ++index;
-            ctx.stroke();
-          }
+            const ctx = canvasCtx;
+            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
+            ctx.save();
+            const canvas = ctx.canvas;
+            let index = 0;
+            for (const connection of HAND_CONNECTIONS) {
+              ctx.beginPath();
+              const [start, end] = connection;
+              const from = landmarks[start];
+              const to = landmarks[end];
 
-          // draw landmarks
-          const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 0 });
-          ctx.save();
-          const canvasLandmarks = ctx.canvas;
-          let indexLandmarks = 0;
-          for (const landmark of landmarks) {
-            // All of our points are normalized, so we need to scale the unit canvas
-            // to match our actual canvas size.
-            ctx.fillStyle = resolve(optionLandmarks.fillColor ?? '#00ff00', {
-              index: indexLandmarks,
-              from: landmark
-            });
-            ctx.strokeStyle = resolve(optionLandmarks.color ?? '#ffffff', {
-              index: indexLandmarks,
-              from: landmark
-            });
-            ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 0, {
-              index: indexLandmarks,
-              from: landmark
-            });
+              if (from && to) {
+                ctx.strokeStyle = resolve(options.color ?? '', { index, from, to });
+                ctx.lineWidth = resolve(options.lineWidth ?? 1, { index, from, to });
+                ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
+                ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+              }
+              ++index;
+              ctx.stroke();
+            }
 
-            const circle = new Path2D();
-            // Decrease the size of the arc to compensate for the scale()
-            circle.arc(
-              landmark.x * canvasLandmarks.width,
-              landmark.y * canvasLandmarks.height,
-              resolve(optionLandmarks.radius ?? 1, { index: indexLandmarks, from: landmark }),
-              0,
-              2 * Math.PI
-            );
-            /* ctx.fill(circle);
+            // draw landmarks
+            const optionLandmarks = addDefaultOptions({ color: '#facc15', lineWidth: 0 });
+            ctx.save();
+            const canvasLandmarks = ctx.canvas;
+            let indexLandmarks = 0;
+            for (const landmark of landmarks) {
+              // All of our points are normalized, so we need to scale the unit canvas
+              // to match our actual canvas size.
+              ctx.fillStyle = resolve(optionLandmarks.fillColor ?? '#00ff00', {
+                index: indexLandmarks,
+                from: landmark
+              });
+              ctx.strokeStyle = resolve(optionLandmarks.color ?? '#ffffff', {
+                index: indexLandmarks,
+                from: landmark
+              });
+              ctx.lineWidth = resolve(optionLandmarks.lineWidth ?? 0, {
+                index: indexLandmarks,
+                from: landmark
+              });
+
+              const circle = new Path2D();
+              // Decrease the size of the arc to compensate for the scale()
+              circle.arc(
+                landmark.x * canvasLandmarks.width,
+                landmark.y * canvasLandmarks.height,
+                resolve(optionLandmarks.radius ?? 1, { index: indexLandmarks, from: landmark }),
+                0,
+                2 * Math.PI
+              );
+              /* ctx.fill(circle);
               ctx.stroke(circle); */
-            ++indexLandmarks;
-          }
+              ++indexLandmarks;
+            }
 
-          /*             drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+            /*             drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
               color: '#00FF00',
               lineWidth: 5
             }); */
-          /*             drawLandmarks(canvasCtx, landmarks, {
+            /*             drawLandmarks(canvasCtx, landmarks, {
               color: '#FF0000',
               lineWidth: 2
             }); */
+          }
         }
-      }
 
-      canvasCtx.restore();
-      requestAnimationFrame(predictWebcam);
+        canvasCtx.restore();
+        requestAnimationFrame(predictWebcam);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -315,15 +325,43 @@
   <title>Game Level {data.level}</title>
 </svelte:head>
 
-{#if $query.data}
-  <Alertime
-    {dialogOpen}
-    text={$query.data?.words[currIndexWords]}
-    onClose={() => {
-      dialogOpen = false;
-    }}
-  />
-{/if}
+<Alertime
+  {dialogOpen}
+  text={$query.data?.words[currIndexWords]}
+  onClose={() => {
+    dialogOpen = false;
+  }}
+/>
+
+<!-- Kalau menang -->
+<AlertDialog.Root bind:open={levelEnd}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title class="text-center">Selamat!! 🎉🎉🎉</AlertDialog.Title>
+      <AlertDialog.Description>
+        Kamu Sudah Menyelesaikan Level {data.level}
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      {#if data.level !== '4'}
+        <a href="/">
+          <Button>Stop Dulu</Button>
+        </a>
+      {/if}
+      <Button
+        on:click={() => {
+          if (data.level === '4') {
+            goto('/');
+            return;
+          }
+
+          goto(`/${Number(data.level) + 1}`);
+          levelEnd = false;
+        }}>{data.level === '4' ? 'Selesai' : 'Lanjut'}</Button
+      >
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
 
 <main class="flex flex-1 flex-wrap">
   <div class="basis-1/3 bg-white text-black md:h-screen relative">
