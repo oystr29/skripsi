@@ -23,6 +23,7 @@
   import { goto } from '$app/navigation';
 
   export let data: PageData;
+  let windowWidth: number;
 
   let videoEl: HTMLVideoElement | undefined;
   let canvasEl: HTMLCanvasElement | undefined;
@@ -184,19 +185,18 @@
         canvasCtx.save();
 
         // Stop kalau tangannya hilang
-        if (!results?.landmarks.length && state === 'run') {
+        if (results?.landmarks.length === 0 && state === 'run') {
           clearInterval(interval);
           state = 'idle';
           seconds = 5;
         }
 
-        if (results?.landmarks && !dialogOpen && !levelEnd) {
+        if (results?.landmarks.length > 0 && !dialogOpen && !levelEnd) {
           if (state === 'idle') {
             startInterval();
             state = 'run';
           }
 
-          console.log(`result.landmarks: ${results.landmarks}`);
           for (const landmarks of results.landmarks) {
             // draw connector
             if (!landmarks) {
@@ -207,7 +207,6 @@
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
-            console.log(`HAND_CONNECTIONS: ${HAND_CONNECTIONS}`);
             for (const connection of HAND_CONNECTIONS) {
               ctx.beginPath();
               const [start, end] = connection;
@@ -229,7 +228,6 @@
             ctx.save();
             const canvasLandmarks = ctx.canvas;
             let indexLandmarks = 0;
-            console.log(`landmark: ${landmarks}`);
             for (const landmark of landmarks) {
               // All of our points are normalized, so we need to scale the unit canvas
               // to match our actual canvas size.
@@ -326,6 +324,8 @@
   }}
 />
 
+<svelte:window bind:innerWidth={windowWidth} />
+
 <!-- Kalau menang -->
 <AlertDialog.Root bind:open={levelEnd}>
   <AlertDialog.Content>
@@ -356,57 +356,91 @@
   </AlertDialog.Content>
 </AlertDialog.Root>
 
-<main class="flex flex-1 flex-wrap">
-  <div class="basis-1/3 bg-white text-black md:h-screen relative">
-    <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
-      <div class="text-2xl font-semibold">Ikuti Huruf</div>
-      <div class="text-9xl font-bold text-blue-500">
-        {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+{#if windowWidth <= 400}
+  <div class="bg-white h-1/3 absolute w-screen z-[60] text-black">
+    <div class="w-full h-full flex flex-col items-center justify-between">
+      <div class="font-bold">Ikuti Huruf</div>
+      <div class="px-2 flex items-center justify-between w-full">
+        <div>gambar</div>
+        <div class="text-7xl text-blue-500">
+          {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+        </div>
+        <div class="h-16 w-16">
+          <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+        </div>
       </div>
-      <div class="text-4xl font-bold">
+
+      <div class="text-2xl font-bold">
         {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
           <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
         {/each}
       </div>
-      <Button
-        class="absolute right-2 bottom-2"
-        variant="secondary"
-        type="button"
-        on:click={() => {
-          if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
-            currIndexWords += 1;
-            currIndexLetters = 0;
+    </div>
+  </div>
+  <video
+    bind:this={videoEl}
+    autoplay
+    playsinline
+    class="w-screen flip-video h-screen object-cover absolute"
+    id=""
+  >
+    <track kind="captions" />
+  </video>
+  <canvas class="absolute flip-video h-screen w-screen object-cover z-50" bind:this={canvasEl} />
+  <div class="bg-black/70 absolute w-screen h-screen z-40 object-cover" />
+{:else}
+  <main class="flex flex-1 flex-wrap">
+    <div class="basis-1/3 bg-white text-black md:h-screen relative">
+      <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
+        <div class="text-2xl font-semibold">Ikuti Huruf {windowWidth}</div>
+        <div class="text-9xl font-bold text-blue-500">
+          {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+        </div>
+        <div class="text-4xl font-bold">
+          {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
+            <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
+          {/each}
+        </div>
+        <Button
+          class="absolute right-2 bottom-2"
+          variant="secondary"
+          type="button"
+          on:click={() => {
+            if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
+              currIndexWords += 1;
+              currIndexLetters = 0;
+              seconds = 5;
+              dialogOpen = true;
+              return;
+            }
+            currIndexLetters += 1;
             seconds = 5;
-            dialogOpen = true;
-            return;
-          }
-          currIndexLetters += 1;
-          seconds = 5;
-        }}
-      >
-        <ChevronRight class="mr-2" />
-        Skip Huruf
-      </Button>
-    </div>
-  </div>
-  <div class="basis-2/3 relative">
-    <div class="absolute right-2 top-1 z-[60]"></div>
-    <div class="video-container">
-      <div class="absolute z-30 w-28 h-28 left-2 bottom-2">
-        <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+          }}
+        >
+          <ChevronRight class="mr-2" />
+          Skip Huruf
+        </Button>
       </div>
-      <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
-        <track kind="captions" />
-      </video>
     </div>
-    <div class="video-container z-50">
-      <canvas class="video absolute top-0 left-0 z-50" bind:this={canvasEl}></canvas>
+    <div class="basis-2/3 relative">
+      <div class="absolute right-2 top-1 z-[60]"></div>
+      <div class="video-container">
+        <div class="absolute z-30 w-28 h-28 left-2 bottom-2">
+          <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+        </div>
+        <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
+          <track kind="captions" />
+        </video>
+      </div>
+      <div class="video-container z-50">
+        <canvas class="video absolute top-0 left-0 z-50" bind:this={canvasEl}></canvas>
+      </div>
+      <div class="video-container z-20">
+        <div class="video bg-black/70 z-20"></div>
+      </div>
     </div>
-    <div class="video-container z-20">
-      <div class="video bg-black/70 z-20"></div>
-    </div>
-  </div>
-</main>
+  </main>
+{/if}
 
 <style>
   .video-container {
@@ -433,5 +467,11 @@
     transform: translate(-50%, -50%) rotateY(180deg);
     -webkit-transform: translate(-50%, -50%) rotateY(180deg);
     -moz-transform: translate(-50%, -50%) rotateY(180deg);
+  }
+
+  .flip-video {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
   }
 </style>

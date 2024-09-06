@@ -68,6 +68,10 @@
   }
 }
 
+body {
+  font-family: 'Cabin Sketch', sans-serif;
+}
+
 @layer base {
   * {
     @apply border-border;
