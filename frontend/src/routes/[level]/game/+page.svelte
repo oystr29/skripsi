@@ -360,12 +360,17 @@
   <div class="bg-white h-1/3 absolute w-screen z-[60] text-black">
     <div class="w-full h-full flex flex-col items-center justify-between">
       <div class="font-bold">Ikuti Huruf</div>
-      <div class="px-2 flex items-center justify-between w-full">
-        <div>gambar</div>
-        <div class="text-7xl text-blue-500">
+      <div class="px-2 grid grid-cols-3 gap-4 items-center justify-between w-full">
+        <div class="">
+          <img
+            src={`${env.PUBLIC_BASE_API}/static/img/letters/${$query.data?.words[currIndexWords][currIndexLetters]}.png`}
+            class=""
+          />
+        </div>
+        <div class="text-7xl flex items-center justify-center w-full text-blue-500">
           {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
         </div>
-        <div class="h-16 w-16">
+        <div class="flex items-center justify-center h-full w-full">
           <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
         </div>
       </div>
@@ -393,8 +398,16 @@
     <div class="basis-1/3 bg-white text-black md:h-screen relative">
       <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
         <div class="text-2xl font-semibold">Ikuti Huruf {windowWidth}</div>
-        <div class="text-9xl font-bold text-blue-500">
-          {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+        <div class="flex items-center px-2 justify-center gap-4 w-full flex-col">
+          <div class="w-64 h-64">
+            <img
+              src={`${env.PUBLIC_BASE_API}/static/img/letters/${$query.data?.words[currIndexWords][currIndexLetters]}.png`}
+              class=""
+            />
+          </div>
+          <div class="text-9xl font-bold text-blue-500">
+            {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+          </div>
         </div>
         <div class="text-4xl font-bold">
           {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
@@ -473,5 +486,12 @@
     transform: rotateY(180deg);
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
+  }
+
+  .border-sketch {
+    border-top-left-radius: 255px 15px;
+    border-top-right-radius: 15px 225px;
+    border-bottom-right-radius: 225px 15px;
+    border-bottom-left-radius: 15px 255px;
   }
 </style>

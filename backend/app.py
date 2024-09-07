@@ -9,14 +9,13 @@ CORS(app)
 
 data_text = {
     '1': {
-        'letters': ['C', 'E', 'I', 'L', 'O', 'R', 'U', 'V'],
+        'letters': ['C', 'E', 'I', 'L', 'O', 'U', 'V'],
         'words': [
             'LOVE',
             'OLI',
-            'JELI',
-            'REL',
-            'ULUR',
             'LECI',
+            'OVI',
+            'ULUR',
         ]
     },
     '2': {
@@ -25,7 +24,21 @@ data_text = {
             'BAN',
             'DAMI',
             'FANA',
-            'QALBU'
+            'QALBU',
+            'HALDA',
+        ]
+    },
+    '3': {
+        'letters': ['L', 'R'],
+        'words': [
+            'LIRA',
+            ''
+        ]
+    },
+    '4': {
+        'letters': ['Semua Huruf'],
+        'words': [
+
         ]
     }
 }
@@ -39,6 +52,11 @@ def hello_world():
 def words(level):
     return data_text[level]
 
+@app.route("/img/<letter>", methods=['GET'])
+def img(letter):
+    return {
+        'data': f'{request.url_root}static/img/{letter}.png'
+    }
 
 @app.route("/detect", methods=['POST'])
 def detect():
