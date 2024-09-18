@@ -26,19 +26,27 @@ data_text = {
             'FANA',
             'QALBU',
             'HALDA',
+            'PAHAT',
         ]
     },
     '3': {
-        'letters': ['L', 'R'],
+        'letters': ['J', 'R'],
         'words': [
-            'LIRA',
-            ''
+            'JIRA',
+            'HERU',
+            'LARA',
+            'QORIN',
+            'FAJAR',
         ]
     },
     '4': {
         'letters': ['Semua Huruf'],
         'words': [
-
+            'OKTA',
+            'YUJU',
+            'YEOCHIN',
+            'NAVI',
+            'KEREN',
         ]
     }
 }
