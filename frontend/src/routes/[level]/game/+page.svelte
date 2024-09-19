@@ -70,35 +70,8 @@
   let dialogOpen = true;
   let levelEnd = false;
 
-  let seconds = 5;
-  let interval: number;
+  let seconds = 3;
   let state: 'idle' | 'run' | 'correct' | 'wrong' | 'fetching' = 'idle';
-
-  const startInterval = () => {
-    clearInterval(interval);
-    interval = setInterval(() => {
-      seconds -= 0.1;
-      if (seconds >= 0) return;
-      // run
-      if (!$mutate.isPending && seconds <= 0 && state === 'run') {
-        $mutate.mutate({
-          results: results.landmarks,
-          letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
-        });
-        // clearInterval(interval);
-      } else if (
-        ($mutate.isSuccess || $mutate.isError) &&
-        seconds <= 0 &&
-        (state === 'correct' || state === 'wrong')
-      ) {
-        seconds = 5;
-        state = results.landmarks && !dialogOpen ? 'run' : 'idle';
-        if (dialogOpen) {
-          clearInterval(interval);
-        }
-      }
-    }, 100);
-  };
 
   let currIndexWords = 0;
   let currIndexLetters = 0;
@@ -123,9 +96,7 @@
       return res.data as { message: string };
     },
     onMutate: async () => {
-      seconds = 1;
       state = 'fetching';
-      // startInterval();
     },
     onSuccess: async () => {
       // detect if not last word
@@ -136,7 +107,6 @@
       ) {
         // end
         levelEnd = true;
-        clearInterval(interval);
         state = 'idle';
         return;
       }
@@ -145,28 +115,26 @@
       if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
         currIndexWords += 1;
         currIndexLetters = 0;
-        seconds = 1;
-        state = 'correct';
-        startInterval();
+        // startInterval();
         dialogOpen = true;
         return;
       }
 
       // Ubah Huruf dari kata
       currIndexLetters += 1;
-      seconds = 1;
-      state = 'correct';
-      // startInterval();
     },
     onError: async (e) => {
-      seconds = 1;
-      state = 'wrong';
-      startInterval();
+      // startInterval();
       console.error(e);
     }
   });
+  let secondObj = {
+    last: 0,
+    now: 0
+  };
 
-  async function predictWebcam() {
+  /**@param {number} nowSec */
+  async function predictWebcam(nowSec) {
     try {
       if (canvasEl && videoEl && handlandmarker && canvasCtx) {
         if (!video) {
@@ -184,17 +152,48 @@
         }
         canvasCtx.save();
 
+        let currSec = seconds - (nowSec - secondObj.last) / 1000;
+        secondObj.now = nowSec;
+
+        if ((state === 'correct' || state === 'wrong') && currSec < 0) {
+          seconds = 3;
+          state = !results.landmarks.length || !dialogOpen ? 'run' : 'idle';
+          secondObj.last = nowSec;
+        }
+
+        if (($mutate.isSuccess || $mutate.isError) && state === 'fetching') {
+          state = $mutate.isSuccess ? 'correct' : 'wrong';
+          seconds = 1;
+          secondObj.last = nowSec;
+        }
+        currSec = seconds - (nowSec - secondObj.last) / 1000;
+
+        if (
+          !$mutate.isPending &&
+          currSec < 0 &&
+          state === 'run' &&
+          results.landmarks.length >= 0 &&
+          !dialogOpen
+        ) {
+          state = 'fetching';
+          $mutate.mutateAsync({
+            results: results.landmarks,
+            letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
+          });
+        }
+
         // Stop kalau tangannya hilang
         if (results?.landmarks.length === 0 && state === 'run') {
-          clearInterval(interval);
+          // clearInterval(interval);
           state = 'idle';
-          seconds = 5;
+          seconds = 3;
         }
 
         if (results?.landmarks.length > 0 && !dialogOpen && !levelEnd) {
           if (state === 'idle') {
-            startInterval();
+            // startInterval();
             state = 'run';
+            secondObj.last = nowSec;
           }
 
           for (const landmarks of results.landmarks) {
@@ -397,7 +396,11 @@
   <main class="flex flex-1 flex-wrap">
     <div class="basis-1/3 bg-white text-black md:h-screen relative">
       <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
-        <div class="text-2xl font-semibold">Ikuti Huruf {windowWidth}</div>
+        <div class="text-2xl font-semibold">Ikuti Huruf</div>
+        <div class="flex flex-col">
+          <p>now: {secondObj.now}</p>
+          <p>last: {secondObj.last}</p>
+        </div>
         <div class="flex items-center px-2 justify-center gap-4 w-full flex-col">
           <div class="w-64 h-64">
             <img
@@ -422,12 +425,12 @@
             if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
               currIndexWords += 1;
               currIndexLetters = 0;
-              seconds = 5;
+              seconds = 3;
               dialogOpen = true;
               return;
             }
             currIndexLetters += 1;
-            seconds = 5;
+            seconds = 3;
           }}
         >
           <ChevronRight class="mr-2" />
@@ -439,7 +442,11 @@
       <div class="absolute right-2 top-1 z-[60]"></div>
       <div class="video-container">
         <div class="absolute z-30 w-28 h-28 left-2 bottom-2">
-          <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+          <Circleprogress
+            max={state === 'run' ? seconds : 1}
+            value={seconds - (secondObj.now - secondObj.last) / 1000}
+            {state}
+          />
         </div>
         <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
           <track kind="captions" />
