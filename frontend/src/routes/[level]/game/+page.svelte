@@ -66,6 +66,25 @@
     };
   }
 
+  /** @param {'idle' | 'run' | 'correct' | 'wrong' | 'fetching'} s */
+  function getColor(s) {
+    if (s === 'idle') {
+      return '#64748b';
+    }
+
+    if (s === 'run') {
+      return '#0ea5e9';
+    }
+
+    if (s === 'correct') return '#22c55e';
+
+    if (s === 'wrong') return '#dc2626';
+
+    if (s === 'fetching') return '#ca8a04';
+
+    return '#334155';
+  }
+
   let video: MediaTrackConstraints | undefined;
   let dialogOpen = true;
   let levelEnd = false;
@@ -152,21 +171,23 @@
         }
         canvasCtx.save();
 
-        let currSec = seconds - (nowSec - secondObj.last) / 1000;
         secondObj.now = nowSec;
 
-        if ((state === 'correct' || state === 'wrong') && currSec < 0) {
+        if (
+          (state === 'correct' || state === 'wrong') &&
+          seconds - (nowSec - secondObj.last) / 1000 < 0
+        ) {
           seconds = 3;
           state = !results.landmarks.length || !dialogOpen ? 'run' : 'idle';
           secondObj.last = nowSec;
         }
 
+        const currSec = seconds - (nowSec - secondObj.last) / 1000;
         if (($mutate.isSuccess || $mutate.isError) && state === 'fetching') {
           state = $mutate.isSuccess ? 'correct' : 'wrong';
           seconds = 1;
           secondObj.last = nowSec;
         }
-        currSec = seconds - (nowSec - secondObj.last) / 1000;
 
         if (
           !$mutate.isPending &&
@@ -202,7 +223,7 @@
               return;
             }
             const ctx = canvasCtx;
-            const options = addDefaultOptions({ color: '#0284c7', lineWidth: 1 });
+            const options = addDefaultOptions({ color: getColor(state), lineWidth: 1 });
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
@@ -356,7 +377,10 @@
 </AlertDialog.Root>
 
 {#if windowWidth <= 400}
-  <div class="bg-white h-1/3 absolute w-screen z-[60] text-black">
+  <div
+    class="bg-white h-1/3 absolute w-screen z-[60] text-black border-4"
+    style={`border-color: ${getColor(state)}`}
+  >
     <div class="w-full h-full flex flex-col items-center justify-between">
       <div class="font-bold">Ikuti Huruf</div>
       <div class="px-2 grid grid-cols-3 gap-4 items-center justify-between w-full">
@@ -370,7 +394,11 @@
           {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
         </div>
         <div class="flex items-center justify-center h-full w-full">
-          <Circleprogress max={state === 'run' ? 5 : 1} value={seconds} {state} />
+          <Circleprogress
+            max={state === 'run' ? seconds : 1}
+            value={seconds - (secondObj.now - secondObj.last) / 1000}
+            {state}
+          />
         </div>
       </div>
 
@@ -397,10 +425,6 @@
     <div class="basis-1/3 bg-white text-black md:h-screen relative">
       <div class="flex flex-col flex-1 items-center py-4 justify-between h-screen font-bold">
         <div class="text-2xl font-semibold">Ikuti Huruf</div>
-        <div class="flex flex-col">
-          <p>now: {secondObj.now}</p>
-          <p>last: {secondObj.last}</p>
-        </div>
         <div class="flex items-center px-2 justify-center gap-4 w-full flex-col">
           <div class="w-64 h-64">
             <img
@@ -438,7 +462,7 @@
         </Button>
       </div>
     </div>
-    <div class="basis-2/3 relative">
+    <div class="basis-2/3 relative border-4" style={`border-color: ${getColor(state)}`}>
       <div class="absolute right-2 top-1 z-[60]"></div>
       <div class="video-container">
         <div class="absolute z-30 w-28 h-28 left-2 bottom-2">

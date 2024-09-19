@@ -11,13 +11,13 @@
   const startInterval = () => {
     clearInterval(interval);
     interval = setInterval(() => {
-      seconds -= 0.1;
+      seconds -= 1;
       if (seconds <= 0) {
         onClose();
         clearInterval(interval);
         seconds = 3;
       }
-    }, 100);
+    }, 1000);
   };
 
   $: {
