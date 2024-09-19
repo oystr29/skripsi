@@ -30,13 +30,16 @@ data_text = {
         ]
     },
     '3': {
-        'letters': ['J', 'R'],
+        'letters': ['J', 'R', 'S', 'T', 'W', 'X', 'Y', 'Z'],
         'words': [
             'JIRA',
             'HERU',
             'LARA',
             'QORIN',
             'FAJAR',
+            'XAVI',
+            'ZOD',
+            'YOGA',
         ]
     },
     '4': {
