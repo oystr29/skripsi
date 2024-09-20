@@ -27,7 +27,7 @@
       </a>
     </div>
   </div>
-  <a href="/1">
+  <a href="/about">
     <button class="text-white hover:underline text-5xl font-bold">About</button>
   </a>
 </main>
