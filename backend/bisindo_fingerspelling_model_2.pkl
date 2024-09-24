@@ -1,1 +1,0 @@
-../model/bisindo_fingerspelling_model_2.pkl

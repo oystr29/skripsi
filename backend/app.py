@@ -91,16 +91,16 @@ def detect():
             hand_data_point.extend([normalized_x, normalized_y, z])
         hand_data_points.append(hand_data_point)
 
-    model_path = 'bisindo_fingerspelling_model.pkl'
+    model_path = 'model/bisindo_fingerspelling_model.pkl'
     zero = []
     for _ in range(63):
         zero.append(0.0)
     if len(hand_data_points) == 1:
         hand_data_points[0] += zero
-        model_path = 'bisindo_fingerspelling_model_1.pkl'
+        model_path = 'model/bisindo_fingerspelling_model_1.pkl'
     elif len(hand_data_points) == 2:
         hand_data_points = [hand_data_points[0] + hand_data_points[1]]
-        model_path = 'bisindo_fingerspelling_model_2.pkl'
+        model_path = 'model/bisindo_fingerspelling_model_2.pkl'
     hand_data_points = np.array(hand_data_points)
     hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
     # print(hand_data_points)

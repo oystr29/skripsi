@@ -2,8 +2,9 @@ import os
 import sys
 import numpy as np
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 import joblib
+
 
 two_hands = ['A', 'B', 'D', 'F', 'G', 'H', 'K', 'M', 'N', 'P', 'Q', 'S', 'T', 'W', 'X', 'Y']
 one_hand = ['C', 'E', 'I', 'J', 'L', 'O', 'R', 'U', 'V', 'Z']
@@ -78,29 +79,33 @@ model.fit(training_data.reshape(training_data.shape[0], -1), training_labels)
 
 # Model saving
 model_name = 'asl_fingerspelling_model.pkl'
+arr_hands = []
 if isTwo():
     model_name = 'asl_fingerspelling_model_2.pkl'
+    arr_hands = two_hands
 elif isOne():
+    arr_hands = one_hand
     model_name = 'asl_fingerspelling_model_1.pkl'
 
-# joblib.dump(model, model_name)
+joblib.dump(model, model_name)
 
 # Model Evaluation using the Test Set
 y_pred = model.predict(test_data.reshape(test_data.shape[0], -1))
 report = classification_report(test_labels, y_pred)
 
-print(test_labels)
-print('----------------')
-print(y_pred)
+cm = confusion_matrix(test_labels, y_pred)
+disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
 
 
 # Print the report to a file
-""" if isTwo():
+if isTwo():
+    disp.plot().figure_.savefig('cm2.png')
     with open('model_evaluation_report_2.txt', 'w') as f:
         print(report, file=f)
 elif isOne():
+    disp.plot().figure_.savefig('cm1.png')
     with open('model_evaluation_report_1.txt', 'w') as f:
         print(report, file=f)
 else:
     with open('model_evaluation_report.txt', 'w') as f:
-        print(report, file=f) """
+        print(report, file=f)

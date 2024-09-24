@@ -9,7 +9,7 @@ import joblib
 hands = Hands(max_num_hands=2, min_detection_confidence=0.2)
 mpDraw = drawing_utils
 
-path = './image_dataset/val/Q/flip004.jpg'
+path = './image_dataset/val/A/augmented_image_0.jpg'
 src = cv2.imread(path)
 image = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
 results = hands.process(image)
