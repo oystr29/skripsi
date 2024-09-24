@@ -78,14 +78,14 @@ model = SVC(kernel='poly')
 model.fit(training_data.reshape(training_data.shape[0], -1), training_labels)
 
 # Model saving
-model_name = 'asl_fingerspelling_model.pkl'
+model_name = 'bisindo_model.pkl'
 arr_hands = []
 if isTwo():
-    model_name = 'asl_fingerspelling_model_2.pkl'
+    model_name = 'bisindo_model_2.pkl'
     arr_hands = two_hands
 elif isOne():
     arr_hands = one_hand
-    model_name = 'asl_fingerspelling_model_1.pkl'
+    model_name = 'bisindo_model_1.pkl'
 
 joblib.dump(model, model_name)
 
