@@ -1,6 +1,7 @@
 import os
 import cv2
 import mediapipe as mp
+from sklearn.preprocessing import MinMaxScaler
 
 amounts = {
     'A': 2,
@@ -39,8 +40,11 @@ new_dataset_root = 'dataset_text'
 new_training_dir = os.path.join(new_dataset_root, 'training')
 new_test_dir = os.path.join(new_dataset_root, 'test')
 
-# MediaPipe Hands init
-mp_hands = mp.solutions.hands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=0.26)
+# MediaPipe Hands init, mp = mediapipe
+mp_hands = mp.solutions.hands.Hands(
+            static_image_mode=True, 
+            max_num_hands=2, 
+            min_detection_confidence=0.26)
 
 # Hand Data Points retrieving
 def detect_hand_data_points(image_path):
@@ -82,7 +86,7 @@ def create_new_dataset():
 
     # Training dataset elaboration starting ...
     for root, dirs, files in os.walk(training_dir):
-        for directory in dirs:
+        for directory in sorted(dirs):
             source_dir = os.path.join(training_dir, directory)
             target_dir = os.path.join(new_training_dir, directory)
             os.makedirs(target_dir, exist_ok=True)
@@ -103,7 +107,7 @@ def create_new_dataset():
 
     # Test dataset elaboration starting ...
     for root, dirs, files in os.walk(test_dir):
-        for directory in dirs:
+        for directory in sorted(dirs):
             source_dir = os.path.join(test_dir, directory)
             target_dir = os.path.join(new_test_dir, directory)
             os.makedirs(target_dir, exist_ok=True)

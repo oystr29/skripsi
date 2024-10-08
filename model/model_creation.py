@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 import joblib
+import json
 
 
 two_hands = ['A', 'B', 'D', 'F', 'G', 'H', 'K', 'M', 'N', 'P', 'Q', 'S', 'T', 'W', 'X', 'Y']
@@ -62,7 +63,6 @@ for claz in os.listdir(test_directory):
     test_subdirectory = os.path.join(test_directory, claz)
     test_class_data_number = len(os.listdir(test_subdirectory))
     test_labels.extend([claz] * test_class_data_number)
-
 if isTwo():
     training_labels = list(filter(lambda n: n in two_hands, training_labels ))
     test_labels = list(filter(lambda n: n in two_hands, test_labels ))
@@ -78,20 +78,19 @@ model = SVC(kernel='poly')
 model.fit(training_data.reshape(training_data.shape[0], -1), training_labels)
 
 # Model saving
-model_name = 'bisindo_model.pkl'
-arr_hands = []
+model_name = ''
 if isTwo():
     model_name = 'bisindo_model_2.pkl'
-    arr_hands = two_hands
 elif isOne():
-    arr_hands = one_hand
     model_name = 'bisindo_model_1.pkl'
 
 joblib.dump(model, model_name)
 
 # Model Evaluation using the Test Set
 y_pred = model.predict(test_data.reshape(test_data.shape[0], -1))
+
 report = classification_report(test_labels, y_pred)
+report_dict = classification_report(test_labels, y_pred, output_dict=True)
 
 cm = confusion_matrix(test_labels, y_pred)
 disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
@@ -100,10 +99,14 @@ disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
 # Print the report to a file
 if isTwo():
     disp.plot().figure_.savefig('cm2.png')
+    with open('model_report_2.json', 'w') as f:
+        json.dump(report_dict, f)
     with open('model_evaluation_report_2.txt', 'w') as f:
         print(report, file=f)
 elif isOne():
     disp.plot().figure_.savefig('cm1.png')
+    with open('model_report_1.json', 'w') as f:
+        json.dump(report_dict, f)
     with open('model_evaluation_report_1.txt', 'w') as f:
         print(report, file=f)
 else:

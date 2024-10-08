@@ -1,11 +1,25 @@
-from flask import Flask, abort
+from flask import Flask, abort, json
 from flask import request
 from flask_cors import CORS
+from flasgger import Swagger
 import numpy as np
 import joblib
 
 app = Flask(__name__)
+swagger = Swagger(app)
 CORS(app)
+
+cm_report = {
+    "1": None,
+    "2": None,
+}
+
+with open('model/model_report_1.json', encoding="utf-8") as json_file:
+    cm_report['1'] = json.load(json_file)
+with open('model/model_report_2.json', encoding="utf-8") as json_file:
+    cm_report['2'] = json.load(json_file)
+# print(cm_report)
+
 
 data_text = {
     '1': {
@@ -58,9 +72,38 @@ data_text = {
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/report")
+def report():
+    """
+        API untuk mendapatkan report confussion matrix
+
+        ---
+        responses:
+            200:
+                description: A successful response
+                examples:
+                    application/json: {
+                    'cm_report': 'Hahah',
+                    'cm'
+                    }
+    """
+    return {
+        'cm_report': cm_report,
+        'cm_image': {
+            '1': f'{request.url_root}static/img/cm/cm1.png',
+            '2': f'{request.url_root}static/img/cm/cm2.png'
+        }
+    }
 
 @app.route("/words/<level>", methods=['GET'])
 def words(level):
+    """
+        Endpoint untuk mendapatkan list huruf berdasarkan level
+        ---
+        responses:
+            200:
+                description: A successful response
+    """
     return data_text[level]
 
 @app.route("/img/<letter>", methods=['GET'])
@@ -71,6 +114,13 @@ def img(letter):
 
 @app.route("/detect", methods=['POST'])
 def detect():
+    """
+        Endpoint untuk deteksi alfabet menggunakan model 
+        ---
+        responses:
+            200:
+                description: A successful response
+    """
     multi_hand_landmarks = request.json['results']
     letter = request.json['letter']
     hand_data_points = []

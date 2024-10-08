@@ -1,3 +1,4 @@
+from types import MappingProxyType
 import cv2
 from mediapipe.python.solutions import drawing_utils
 from mediapipe.python.solutions.hands import Hands
@@ -9,17 +10,16 @@ import joblib
 hands = Hands(max_num_hands=2, min_detection_confidence=0.2)
 mpDraw = drawing_utils
 
-path = './image_dataset/val/A/augmented_image_0.jpg'
+path = './image_dataset/val/I/flip002.jpg'
 src = cv2.imread(path)
 image = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
 results = hands.process(image)
 
 
 if results.multi_hand_landmarks:
-    print(results.multi_hand_landmarks)
-    print('------------------------------')
     hand_data_points = []
     for hand in results.multi_hand_landmarks:
+        print(f'hand: {len(hand.landmark)}')
         hand_data_point = []
         landmarks = hand.landmark
         for landmark in landmarks:
@@ -36,27 +36,36 @@ if results.multi_hand_landmarks:
             normalized_x = (landmark.x - min_x) / bbox_width
             normalized_y = (landmark.y - min_y) / bbox_height
             z = landmark.z
+            print(f'min_lx: {[landmark.x for landmark in landmarks]} ')
+            print(f'landmark.x: {landmark.x}, landmark.y: {landmark.y}')
+            print(f'minx: {min_x}, maxy: {max_x}')
+            print(f'nx: {normalized_x}, ny: {normalized_y}')
+            exit()
             hand_data_point.extend([normalized_x, normalized_y, z])
         hand_data_points.append(hand_data_point)
 
          # Load saved Model
-    model_path = 'bisindo_fingerspelling_model.pkl'
+    model_path = ''
     zero = []
     for i in range(63):
         zero.append(0.0)
     if len(hand_data_points) == 1:
         hand_data_points[0] += zero
-        modal_path = 'bisindo_fingerspelling_model_1.pkl'
+        modal_path = 'bisindo_model_1.pkl'
+        print('1111')
     elif len(hand_data_points) == 2:
         hand_data_points = [hand_data_points[0] + hand_data_points[1]]
-        modal_path = 'bisindo_fingerspelling_model_2.pkl'
+        modal_path = 'bisindo_model_2.pkl'
+        print('2222')
     print(hand_data_points)
+    print(model_path)
     hand_data_points = np.array(hand_data_points)
     hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
 
     model = joblib.load(model_path)
     prediction = model.predict(hand_data_points)
     # accuracy = accuracy_score(model, prediction)
+    print("-------------------------------")
     print(prediction)
 
     predicted_letter = prediction[0]
