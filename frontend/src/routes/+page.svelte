@@ -10,7 +10,9 @@
     <div class="font-bold text-4xl text-white">ISYARAT BISINDO</div>
   </nav>
 </header>
-<main class="pt-56 container mx-auto flex flex-col items-center justify-between h-screen pb-10">
+<main
+  class="pt-48 lg:pt-56 container mx-auto flex flex-col items-center justify-between h-screen pb-10"
+>
   <div class="flex flex-col items-center">
     <div class="flex flex-col items-center gap-4">
       <a href="/1">
@@ -27,13 +29,13 @@
       </a>
     </div>
   </div>
-  <div class="flex items-center justify-center w-full gap-10">
+  <div class="flex items-center justify-center w-full gap-5">
     <a href="/about">
-      <button class="text-white mr-10 hover:underline text-5xl font-bold">About</button>
+      <button class="text-white hover:underline text-4xl font-bold">About</button>
     </a>
-    <div class="text-5xl">|</div>
+    <div class="text-4xl">|</div>
     <a href="/report">
-      <button class="text-white hover:underline text-5xl font-bold">Report</button>
+      <button class="text-white hover:underline text-4xl font-bold">Report</button>
     </a>
   </div>
 </main>

@@ -9,19 +9,19 @@
   let value = 'cm1';
 </script>
 
-<main class="mt-8 pt-8 container mx-auto pb-10">
-  <h1 class="text-center mt-8">Report</h1>
+<main class="mt-8 pt-2 sm:container mx-2 sm:mx-auto pb-10">
+  <h1 class="text-center mt-2">Report</h1>
   <div class="flex flex-col items-center justify-center w-full">
     <Tabs.Root
       {value}
-      class="w-[900px]"
+      class="w-full"
       onValueChange={(v) => {
         value = v ?? 'cm1';
       }}
     >
       <Tabs.List class="grid w-full grid-cols-2">
-        <Tabs.Trigger value="cm1">Confussion Matrix 1 Tangan</Tabs.Trigger>
-        <Tabs.Trigger value="cm2">Confussion Matrix 2 Tangan</Tabs.Trigger>
+        <Tabs.Trigger value="cm1">CM 1 Tangan</Tabs.Trigger>
+        <Tabs.Trigger value="cm2">CM 2 Tangan</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="cm1">
         <Card.Root>
