@@ -41,6 +41,7 @@ data_text = {
             'QALBU',
             'HALDA',
             'PAHAT',
+            'KAKA'
         ]
     },
     '3': {
@@ -53,7 +54,7 @@ data_text = {
             'FAJAR',
             'XAVI',
             'ZOD',
-            'YOGA',
+            'SAWAH',
         ]
     },
     '4': {
@@ -123,6 +124,9 @@ def detect():
     """
     multi_hand_landmarks = request.json['results']
     letter = request.json['letter']
+    if multi_hand_landmarks is None and letter is None: 
+        abort(500, 'Error gak ada data')
+
     hand_data_points = []
     for hand in multi_hand_landmarks:
         hand_data_point = []
