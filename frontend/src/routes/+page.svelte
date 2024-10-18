@@ -31,11 +31,11 @@
   </div>
   <div class="flex items-center justify-center w-full gap-5">
     <a href="/about">
-      <button class="text-white hover:underline text-4xl font-bold">About</button>
+      <button class="text-white hover:underline text-4xl font-bold">Tentang</button>
     </a>
     <div class="text-4xl">|</div>
     <a href="/report">
-      <button class="text-white hover:underline text-4xl font-bold">Report</button>
+      <button class="text-white hover:underline text-4xl font-bold">Laporan</button>
     </a>
   </div>
 </main>

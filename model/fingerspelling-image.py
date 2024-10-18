@@ -15,6 +15,7 @@ src = cv2.imread(path)
 image = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
 results = hands.process(image)
 
+print(results.multi_hand_landmarks)
 
 if results.multi_hand_landmarks:
     hand_data_points = []
@@ -40,7 +41,6 @@ if results.multi_hand_landmarks:
             print(f'landmark.x: {landmark.x}, landmark.y: {landmark.y}')
             print(f'minx: {min_x}, maxy: {max_x}')
             print(f'nx: {normalized_x}, ny: {normalized_y}')
-            exit()
             hand_data_point.extend([normalized_x, normalized_y, z])
         hand_data_points.append(hand_data_point)
 
@@ -62,7 +62,7 @@ if results.multi_hand_landmarks:
     hand_data_points = np.array(hand_data_points)
     hand_data_points = hand_data_points.reshape(hand_data_points.shape[0], -1)
 
-    model = joblib.load(model_path)
+    model = joblib.load('bisindo_model_1.pkl' if len(hand_data_points) == 1 else "bisindo_model_2.pkl" )
     prediction = model.predict(hand_data_points)
     # accuracy = accuracy_score(model, prediction)
     print("-------------------------------")

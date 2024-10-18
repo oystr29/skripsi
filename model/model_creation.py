@@ -86,13 +86,17 @@ elif isOne():
 
 joblib.dump(model, model_name)
 
-# Model Evaluation using the Test Set
+# Evaluasi Model menggunakan data tes
 y_pred = model.predict(test_data.reshape(test_data.shape[0], -1))
 
+# Hasil dalam bentuk text
 report = classification_report(test_labels, y_pred)
+# Hasil dalam bentuk dictionary
 report_dict = classification_report(test_labels, y_pred, output_dict=True)
 
+# Testing Model Menggunakan Confusion Matrix
 cm = confusion_matrix(test_labels, y_pred)
+# Tampilkan tabel Confusion matrix dalam bentuk gambar
 disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
 
 

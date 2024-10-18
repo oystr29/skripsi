@@ -10,7 +10,7 @@ test.describe('Level Detail Page', () => {
     await expect(page.getByText('Kamu akan memperagakan')).toBeVisible();
   });
 
-  test("Let's Go! button should go to game page", async ({ page, context }) => {
+  test("Let's Go! button should go to game page", async ({ page }) => {
     await expect(async () => {
       await page.getByRole('button', { name: "Let's Go!" }).click();
     }).toPass();

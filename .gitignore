@@ -9,4 +9,6 @@ model/image_dataset
 model/image_dataset/train
 model/image_dataset/val
 model/static
+__pycache__
+.pytest_cache
 # *.pkl

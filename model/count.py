@@ -69,3 +69,7 @@ print(data)
 with open('count.json', 'w') as fp:
     json.dump(data, fp)
 
+git filter-repo --commit-callback "
+if commit.original_id == b'7e1938d5a89404c7ffca4e17d220eba9929264a1':
+    print('gilsss')
+    commit.ignore = True"

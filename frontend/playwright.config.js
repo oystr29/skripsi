@@ -3,8 +3,13 @@ import { devices } from '@playwright/test';
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
 const config = {
   use: {
+    permissions: ['camera'],
     baseURL: 'http://localhost:5173'
   },
+  reporter: [
+    ['list', { includeProjectInTestName: false }],
+    ['html', {}]
+  ],
 
   /* Configure projects for major browsers */
   projects: [
