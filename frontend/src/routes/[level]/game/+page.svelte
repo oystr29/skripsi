@@ -13,7 +13,7 @@
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { handlandmarkerStore } from '$lib/store';
-  import type { PageData } from '../$types';
+  import type { PageData } from './$types';
   import { env } from '$env/dynamic/public';
   import Alertime from '$lib/components/alertime.svelte';
   import Circleprogress from '$lib/components/circleprogress.svelte';
@@ -95,15 +95,6 @@
   let currIndexWords = 0;
   let currIndexLetters = 0;
 
-  const query = createQuery({
-    queryKey: ['words', data.level],
-    queryFn: async () => {
-      const res = await axios(`${env.PUBLIC_BASE_API}/words/${data.level}`);
-
-      return res.data as { letters: string[]; words: string[] };
-    }
-  });
-
   const mutate = createMutation({
     mutationFn: async (variables: { results: NormalizedLandmark[][]; letter: string }) => {
       const res = await axios.post(`${env.PUBLIC_BASE_API}/detect`, variables, {
@@ -120,9 +111,9 @@
     onSuccess: async () => {
       // detect if not last word
       if (
-        $query.data &&
-        $query.data.words.length - 1 === currIndexWords &&
-        $query.data.words[currIndexWords].length - 1 === currIndexLetters
+        data.data &&
+        data.data.words.length - 1 === currIndexWords &&
+        data.data.words[currIndexWords].length - 1 === currIndexLetters
       ) {
         // end
         levelEnd = true;
@@ -131,7 +122,7 @@
       }
 
       // Ubah Kata
-      if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
+      if (data.data && data.data.words[currIndexWords].length - 1 === currIndexLetters) {
         currIndexWords += 1;
         currIndexLetters = 0;
         // startInterval();
@@ -199,7 +190,7 @@
           state = 'fetching';
           $mutate.mutateAsync({
             results: results.landmarks,
-            letter: $query.data?.words[currIndexWords][currIndexLetters] ?? ''
+            letter: data.data?.words[currIndexWords][currIndexLetters] ?? ''
           });
         }
 
@@ -338,7 +329,7 @@
 
 <Alertime
   {dialogOpen}
-  text={$query.data?.words[currIndexWords]}
+  text={data.data?.words[currIndexWords]}
   onClose={() => {
     dialogOpen = false;
   }}
@@ -386,12 +377,13 @@
       <div class="px-2 grid grid-cols-3 gap-4 items-center justify-between w-full">
         <div class="">
           <img
-            src={`${env.PUBLIC_BASE_API}/static/img/letters/${$query.data?.words[currIndexWords][currIndexLetters]}.png`}
+            alt={'gambar-tangan'}
+            src={`${env.PUBLIC_BASE_API}/static/img/letters/${data.data?.words[currIndexWords][currIndexLetters]}.png`}
             class=""
           />
         </div>
         <div class="text-7xl flex items-center justify-center w-full text-blue-500">
-          {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+          {data.data?.words[currIndexWords][currIndexLetters] ?? ''}
         </div>
         <div class="flex items-center justify-center h-full w-full">
           <Circleprogress
@@ -403,7 +395,7 @@
       </div>
 
       <div class="text-2xl font-bold">
-        {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
+        {#each data.data?.words[currIndexWords].split('') ?? '' as letter, i}
           <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
         {/each}
       </div>
@@ -428,16 +420,17 @@
         <div class="flex items-center px-2 justify-center gap-4 w-full flex-col">
           <div class="w-64 h-64">
             <img
-              src={`${env.PUBLIC_BASE_API}/static/img/letters/${$query.data?.words[currIndexWords][currIndexLetters]}.png`}
+              alt="gambar-tangan"
+              src={`${env.PUBLIC_BASE_API}/static/img/letters/${data.data?.words[currIndexWords][currIndexLetters]}.png`}
               class=""
             />
           </div>
           <div class="text-9xl font-bold text-blue-500">
-            {$query.data?.words[currIndexWords][currIndexLetters] ?? ''}
+            {data.data?.words[currIndexWords][currIndexLetters] ?? ''}
           </div>
         </div>
         <div class="text-4xl font-bold">
-          {#each $query.data?.words[currIndexWords].split('') ?? '' as letter, i}
+          {#each data.data?.words[currIndexWords].split('') ?? '' as letter, i}
             <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
           {/each}
         </div>
@@ -446,7 +439,7 @@
           variant="secondary"
           type="button"
           on:click={() => {
-            if ($query.data && $query.data.words[currIndexWords].length - 1 === currIndexLetters) {
+            if (data.data && data.data.words[currIndexWords].length - 1 === currIndexLetters) {
               currIndexWords += 1;
               currIndexLetters = 0;
               seconds = 3;
@@ -486,6 +479,14 @@
   </main>
 {/if}
 
+{#each data.data.letters as l}
+  <img
+    alt={`gambar-${l}`}
+    src={`${env.PUBLIC_BASE_API}/static/img/letters/${l}.png`}
+    class="hidden"
+  />
+{/each}
+
 <style>
   .video-container {
     position: absolute;
@@ -517,12 +518,5 @@
     transform: rotateY(180deg);
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
-  }
-
-  .border-sketch {
-    border-top-left-radius: 255px 15px;
-    border-top-right-radius: 15px 225px;
-    border-bottom-right-radius: 225px 15px;
-    border-bottom-left-radius: 15px 255px;
   }
 </style>

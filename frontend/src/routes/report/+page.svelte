@@ -30,7 +30,7 @@
           </Card.Header>
           <Card.Content class="space-y-2">
             <div class="space-y-1">
-              <img src={data.cm_image[1]} />
+              <img alt={'cm-1'} src={data.cm_image[1]} />
               <Table.Root>
                 <Table.Header>
                   <Table.Row>
@@ -73,7 +73,7 @@
           </Card.Header>
           <Card.Content class="space-y-2">
             <div class="space-y-1">
-              <img src={data.cm_image[2]} />
+              <img alt={'cm2'} src={data.cm_image[2]} />
               <Table.Root>
                 <Table.Header>
                   <Table.Row>
