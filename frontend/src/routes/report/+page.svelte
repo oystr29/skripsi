@@ -61,14 +61,14 @@
                   {#each data.cm_report1 as cm_report}
                     {#if cm_report['value']}
                       <Table.Row>
-                        <Table.Cell class="capitalize w-full">{cm_report.letter}</Table.Cell>
+                        <Table.Cell class="letter capitalize w-full">{cm_report.letter}</Table.Cell>
                         <Table.Cell colSpan={4} class="capitalize w-full text-center"
                           >{checked ? percentage(cm_report.value) : cm_report.value}</Table.Cell
                         >
                       </Table.Row>
                     {:else}
                       <Table.Row>
-                        <Table.Cell class="capitalize">{cm_report.letter}</Table.Cell>
+                        <Table.Cell class="letter capitalize">{cm_report.letter}</Table.Cell>
                         <Table.Cell
                           >{checked
                             ? percentage(cm_report['f1-score'])
@@ -99,7 +99,7 @@
           </Card.Header>
           <Card.Content class="space-y-2">
             <div class="space-y-4">
-              <img alt={'cm2'} src={data.cm_image[2]} />
+              <img alt={'cm-2'} src={data.cm_image[2]} />
               <div class="flex items-center gap-4 my-4">
                 <div class={!checked ? '' : 'text-muted-foreground'}>Nilai Asli</div>
                 <Switch bind:checked />
@@ -119,7 +119,7 @@
                   {#each data.cm_report2 as cm_report}
                     {#if cm_report['value']}
                       <Table.Row>
-                        <Table.Cell class="capitalize w-full">{cm_report.letter}</Table.Cell>
+                        <Table.Cell class="letter capitalize w-full">{cm_report.letter}</Table.Cell>
                         <Table.Cell colSpan={4} class="capitalize w-full text-center"
                           >{checked ? percentage(cm_report.value) : cm_report.value}</Table.Cell
                         >

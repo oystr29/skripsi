@@ -325,6 +325,10 @@
 
 <svelte:head>
   <title>Game Level {data.level}</title>
+
+  {#each data.data.letters as l}
+    <link rel="preload" as="image" href={`${env.PUBLIC_BASE_API}/static/img/letters/${l}.png`} />
+  {/each}
 </svelte:head>
 
 <Alertime
@@ -425,11 +429,11 @@
               class=""
             />
           </div>
-          <div class="text-9xl font-bold text-blue-500">
+          <div id="letter" class="text-9xl font-bold text-blue-500">
             {data.data?.words[currIndexWords][currIndexLetters] ?? ''}
           </div>
         </div>
-        <div class="text-4xl font-bold">
+        <div id="word" class="text-4xl font-bold">
           {#each data.data?.words[currIndexWords].split('') ?? '' as letter, i}
             <span class={i === currIndexLetters ? 'text-blue-500' : 'text-gray-500'}>{letter}</span>
           {/each}
@@ -478,14 +482,6 @@
     </div>
   </main>
 {/if}
-
-{#each data.data.letters as l}
-  <img
-    alt={`gambar-${l}`}
-    src={`${env.PUBLIC_BASE_API}/static/img/letters/${l}.png`}
-    class="hidden"
-  />
-{/each}
 
 <style>
   .video-container {
