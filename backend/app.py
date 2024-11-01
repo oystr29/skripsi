@@ -14,10 +14,14 @@ cm_report = {
     "2": None,
 }
 
+count = {'': ''}
+
 with open('model/model_report_1.json', encoding="utf-8") as json_file:
     cm_report['1'] = json.load(json_file)
 with open('model/model_report_2.json', encoding="utf-8") as json_file:
     cm_report['2'] = json.load(json_file)
+with open('model/count.json', encoding="utf-8") as json_file:
+    count = json.load(json_file)
 # print(cm_report)
 
 
@@ -73,6 +77,10 @@ data_text = {
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/count")
+def counts():
+    return count
+
 @app.route("/report")
 def report():
     """
@@ -93,7 +101,8 @@ def report():
         'cm_image': {
             '1': f'{request.url_root}static/img/cm/cm1.png',
             '2': f'{request.url_root}static/img/cm/cm2.png'
-        }
+        },
+        'count': count
     }
 
 @app.route("/words/<level>", methods=['GET'])
