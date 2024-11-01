@@ -5,3 +5,6 @@ export const handlandmarkerStore = writable(undefined);
 
 /** @type {import('svelte/store').Writable<string | undefined>} */
 export const deviceIdStore = writable(undefined);
+
+/** @type {import('svelte/store').Writable<string>} */
+export const theme = writable('light');

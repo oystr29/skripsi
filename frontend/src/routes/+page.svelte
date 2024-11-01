@@ -7,7 +7,7 @@
 
 <header class="fixed p-2 w-full">
   <nav class="container mx-2 md:mx-auto flex items-center justify-center">
-    <h1 class="font-bold text-4xl text-white">ISYARAT BISINDO</h1>
+    <h1 class="font-bold text-4xl">ISYARAT BISINDO</h1>
   </nav>
 </header>
 <main
@@ -31,11 +31,11 @@
   </div>
   <div class="flex items-center justify-center w-full gap-5">
     <a href="/about">
-      <button class="text-white hover:underline text-4xl font-bold">Tentang</button>
+      <button class="hover:underline text-4xl font-bold">Tentang</button>
     </a>
     <div class="text-4xl">|</div>
     <a href="/report">
-      <button class="text-white hover:underline text-4xl font-bold">Laporan</button>
+      <button class="hover:underline text-4xl font-bold">Laporan</button>
     </a>
   </div>
 </main>

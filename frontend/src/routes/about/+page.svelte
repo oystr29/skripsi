@@ -30,6 +30,10 @@
     </p>
     <p>
       Beberapa link yang mungkin bisa membantu teman-teman:<br />
+      <a
+        href="https://www.kaggle.com/datasets/agungmrf/indonesian-sign-language-bisindo"
+        target="_blank">Dataset Gambar</a
+      > <br />
       <a href="https://fingerspelling.xyz" target="_blank">Fingerspelling ASL</a> <br />
       <a href="https://github.com/crenar8/fingerspelling-MediaPipeSVMNet" target="_blank"
         >Fingerspelling SVM Github Code</a

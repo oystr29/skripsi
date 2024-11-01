@@ -152,6 +152,11 @@
       </Tabs.Content>
     </Tabs.Root>
   </div>
+  <div class="mt-4">
+    Jumlah data <a href="/report/count" class="cursor-pointer hover:text-sky-500 hover:underline"
+      >klik disini</a
+    >
+  </div>
 </main>
 
 <style>

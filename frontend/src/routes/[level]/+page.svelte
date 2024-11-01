@@ -68,13 +68,11 @@
 
 <header class="fixed p-2 w-full">
   <nav class="container mx-2 md:mx-auto flex items-center justify-center">
-    <div class="font-bold text-4xl text-white">ISYARAT BISINDO</div>
+    <div class="font-bold text-4xl">ISYARAT BISINDO</div>
   </nav>
 </header>
 
-<main
-  class="pt-56 container text-white mx-auto flex flex-col items-center justify-between h-screen pb-10"
->
+<main class="pt-56 container mx-auto flex flex-col items-center justify-between h-screen pb-10">
   <video bind:this={videoEl} hidden>
     <track kind="captions" />
   </video>
@@ -87,26 +85,26 @@
     {#if loading === 'load'}
       <button
         id="loading-btn"
-        class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-950 text-sky-500 hover:bg-sky-500 hover:text-white"
+        class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-500 text-white hover:bg-sky-500/80 dark:bg-sky-950 dark:text-sky-500 dark:hover:bg-sky-500 dark:hover:text-white"
         >Loading Yaa...</button
       >
     {:else if loading === 'unable'}
       <button
         on:click={enableCamera}
-        class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-950 text-sky-500 hover:bg-sky-500 hover:text-white"
+        class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-500 text-white hover:bg-sky-500/80 dark:bg-sky-950 dark:text-sky-500 dark:hover:bg-sky-500 dark:hover:text-white"
         >Izinkan Dulu Kamera</button
       >
     {:else if loading === 'able'}
       <a href={`/${data.level}/game`}>
         <button
-          class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-950 text-sky-500 hover:bg-sky-500 hover:text-white"
+          class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-500 text-white hover:bg-sky-500/80 dark:bg-sky-950 dark:text-sky-500 dark:hover:bg-sky-500 dark:hover:text-white"
           >Let's Go!</button
         >
       </a>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class="cam-src"
           ><svg
-            class="w-10 h-10 text-gray-600 hover:text-gray-50"
+            class="w-10 h-10 text-gray-400 hover:text-gray-700 dark:text-gray-600 dark:hover:text-gray-50"
             xmlns="http://www.w3.org/2000/svg"
             width="1em"
             height="1em"
