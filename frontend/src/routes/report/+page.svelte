@@ -1,9 +1,11 @@
 <script lang="ts">
   import * as Tabs from '$lib/components/ui/tabs/index.js';
+  import * as Popover from '$lib/components/ui/popover';
   import * as Card from '$lib/components/ui/card';
   import { Switch } from '$lib/components/ui/switch';
   import * as Table from '$lib/components/ui/table/index.js';
   import type { PageData } from './$types';
+  import Katex from '@/components/katex.svelte';
 
   export let data: PageData;
 
@@ -51,9 +53,30 @@
                 <Table.Header>
                   <Table.Row>
                     <Table.Head>Huruf</Table.Head>
-                    <Table.Head>F1-Score</Table.Head>
-                    <Table.Head>Precission</Table.Head>
-                    <Table.Head>Recall</Table.Head>
+                    <Table.Head>
+                      <Popover.Root>
+                        <Popover.Trigger>F1-Score</Popover.Trigger>
+                        <Popover.Content>
+                          <Katex math={`\\huge\\frac{2TP}{2TP+FP+FN}`}></Katex>
+                        </Popover.Content>
+                      </Popover.Root>
+                    </Table.Head>
+                    <Table.Head
+                      ><Popover.Root>
+                        <Popover.Trigger>Precission</Popover.Trigger>
+                        <Popover.Content>
+                          <Katex math={`\\huge\\frac{TP}{TP+FP}`}></Katex>
+                        </Popover.Content>
+                      </Popover.Root>
+                    </Table.Head>
+                    <Table.Head
+                      ><Popover.Root>
+                        <Popover.Trigger>Recall</Popover.Trigger>
+                        <Popover.Content>
+                          <Katex math={`\\huge\\frac{TP}{TP+FN}`}></Katex>
+                        </Popover.Content>
+                      </Popover.Root>
+                    </Table.Head>
                     <Table.Head>Support</Table.Head>
                   </Table.Row>
                 </Table.Header>
@@ -61,7 +84,14 @@
                   {#each data.cm_report1 as cm_report}
                     {#if cm_report['value']}
                       <Table.Row>
-                        <Table.Cell class="letter capitalize w-full">{cm_report.letter}</Table.Cell>
+                        <Table.Cell class="letter capitalize w-full">
+                          <Popover.Root>
+                            <Popover.Trigger class="capitalize">{cm_report.letter}</Popover.Trigger>
+                            <Popover.Content>
+                              <Katex math={`\\huge\\frac{TP+TN}{TP+TN+FP+FN}`}></Katex>
+                            </Popover.Content>
+                          </Popover.Root>
+                        </Table.Cell>
                         <Table.Cell colSpan={4} class="capitalize w-full text-center"
                           >{checked ? percentage(cm_report.value) : cm_report.value}</Table.Cell
                         >

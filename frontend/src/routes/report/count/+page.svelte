@@ -41,9 +41,9 @@
           <Card.Content class="space-y-2">
             <div class="space-y-4">
               <div class="flex items-center gap-4 my-4">
-                <div class={!checked ? '' : 'text-muted-foreground'}>Train</div>
+                <div class={!checked ? '' : 'text-muted-foreground'}>Test</div>
                 <Switch bind:checked />
-                <div class={checked ? '' : 'text-muted-foreground'}>Test</div>
+                <div class={checked ? '' : 'text-muted-foreground'}>Train</div>
               </div>
               <Table.Root class="table-fixed">
                 <Table.Header>
@@ -78,9 +78,9 @@
           <Card.Content class="space-y-2">
             <div class="space-y-4">
               <div class="flex items-center gap-4 my-4">
-                <div class={!checked ? '' : 'text-muted-foreground'}>Train</div>
+                <div class={!checked ? '' : 'text-muted-foreground'}>Test</div>
                 <Switch bind:checked />
-                <div class={checked ? '' : 'text-muted-foreground'}>Test</div>
+                <div class={checked ? '' : 'text-muted-foreground'}>Train</div>
               </div>
               <Table.Root class="table-fixed">
                 <Table.Header>

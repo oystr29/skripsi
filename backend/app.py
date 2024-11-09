@@ -150,8 +150,7 @@ def detect():
 
             normalized_x = (landmark['x'] - min_x) / bbox_width
             normalized_y = (landmark['y'] - min_y) / bbox_height
-            z = landmark['z']
-            hand_data_point.extend([normalized_x, normalized_y, z])
+            hand_data_point.extend([normalized_x, normalized_y, landmark['z']])
         hand_data_points.append(hand_data_point)
 
     model_path = 'model/bisindo_fingerspelling_model.pkl'

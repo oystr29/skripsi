@@ -83,6 +83,8 @@ if isTwo():
     model_name = 'bisindo_model_2.pkl'
 elif isOne():
     model_name = 'bisindo_model_1.pkl'
+else:
+    model_name = 'bisindo_model.pkl'
 
 joblib.dump(model, model_name)
 
@@ -96,6 +98,9 @@ report_dict = classification_report(test_labels, y_pred, output_dict=True)
 
 # Testing Model Menggunakan Confusion Matrix
 cm = confusion_matrix(test_labels, y_pred)
+
+v = cm.ravel()
+print(v)
 # Tampilkan tabel Confusion matrix dalam bentuk gambar
 disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
 
