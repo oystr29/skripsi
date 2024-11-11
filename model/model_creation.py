@@ -99,25 +99,49 @@ report_dict = classification_report(test_labels, y_pred, output_dict=True)
 # Testing Model Menggunakan Confusion Matrix
 cm = confusion_matrix(test_labels, y_pred)
 
-v = cm.ravel()
-print(v)
+ravel = cm.ravel()
 # Tampilkan tabel Confusion matrix dalam bentuk gambar
 disp = ConfusionMatrixDisplay.from_predictions(test_labels, y_pred)
 
+length = (len(two_hands) if isTwo() else len(one_hand))
+index = 0
+ravel_arr = []
 
+for i in range(length):
+    data = []
+    start = i * length
+    end = length * (i+1)
+    arr = ravel[start:end]
+    # print(f"start: {start}, end: ${end}")
+    print(arr)
+    for item in arr:
+        data.append(int(item))
+
+    ravel_arr.append(data)
+
+print(ravel)
+print(ravel_arr)
+ravel_json = {"ravel": ravel_arr, "letters": two_hands if isTwo() else one_hand }
 # Print the report to a file
+
 if isTwo():
     disp.plot().figure_.savefig('cm2.png')
     with open('model_report_2.json', 'w') as f:
         json.dump(report_dict, f)
     with open('model_evaluation_report_2.txt', 'w') as f:
         print(report, file=f)
+    with open('ravel2.json', 'w') as f:
+        json.dump(ravel_json, f)
 elif isOne():
     disp.plot().figure_.savefig('cm1.png')
     with open('model_report_1.json', 'w') as f:
         json.dump(report_dict, f)
     with open('model_evaluation_report_1.txt', 'w') as f:
         print(report, file=f)
+    with open('ravel1.json', 'w') as f:
+        json.dump(ravel_json, f)
 else:
     with open('model_evaluation_report.txt', 'w') as f:
         print(report, file=f)
+
+
