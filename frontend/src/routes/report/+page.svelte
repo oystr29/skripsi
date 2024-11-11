@@ -6,10 +6,23 @@
   import * as Table from '$lib/components/ui/table/index.js';
   import type { PageData } from './$types';
   import Katex from '@/components/katex.svelte';
+  import { Label } from '$lib/components/ui/label';
+  import * as RadioGroup from '$lib/components/ui/radio-group';
+  import { cn } from '@/utils';
+  import { browser } from '$app/environment';
 
   export let data: PageData;
 
-  let value = 'cm1';
+  let value = '1';
+
+  let label = '-1';
+
+  let cm_value = {
+    tp: '',
+    fn: '',
+    fp: '',
+    tn: ''
+  };
 
   let checked = true;
 
@@ -29,14 +42,14 @@
       {value}
       class="w-full"
       onValueChange={(v) => {
-        value = v ?? 'cm1';
+        value = v ?? '1';
       }}
     >
       <Tabs.List class="grid w-full grid-cols-2">
-        <Tabs.Trigger value="cm1">CM 1 Tangan</Tabs.Trigger>
-        <Tabs.Trigger value="cm2">CM 2 Tangan</Tabs.Trigger>
+        <Tabs.Trigger value="1">CM 1 Tangan</Tabs.Trigger>
+        <Tabs.Trigger value="2">CM 2 Tangan</Tabs.Trigger>
       </Tabs.List>
-      <Tabs.Content value="cm1">
+      <Tabs.Content value="1">
         <Card.Root>
           <Card.Header>
             <Card.Title>Gambar 1 Tangan</Card.Title>
@@ -44,6 +57,117 @@
           <Card.Content class="space-y-2">
             <div class="space-y-4">
               <img alt={'cm-1'} src={data.cm_image[1]} />
+              <div class="flex gap-10">
+                <div class="pt-5">
+                  <RadioGroup.Root bind:value={label}>
+                    <div class="flex items-center space-x-2">
+                      <RadioGroup.Item value={`${-1}`} id="All" />
+                      <Label for="All">All</Label>
+                    </div>
+                    {#each data.ravel['1'].letters as letter, i}
+                      <div class="flex items-center space-x-2">
+                        <RadioGroup.Item value={`${i}`} id={letter} />
+                        <Label for={letter}>{letter}</Label>
+                      </div>
+                    {/each}
+                  </RadioGroup.Root>
+                  <div class="mt-4 grid grid-cols-2">
+                    <div class="h-16 w-16 text-xl flex items-center justify-center bg-sky-950">
+                      TP
+                    </div>
+                    <div class="h-16 w-16 text-xl flex items-center justify-center bg-sky-800">
+                      FN
+                    </div>
+                    <div class="h-16 w-16 text-xl flex items-center justify-center bg-sky-600">
+                      FP
+                    </div>
+                    <div
+                      class="h-16 w-16 text-xl flex items-center justify-center bg-sky-400 text-black"
+                    >
+                      TN
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-col">
+                  <div class="flex-1 ml-8 flex items-center justify-center font-bold">
+                    Predicted Label
+                  </div>
+                  <div class="flex gap-4">
+                    <div
+                      class="flex truelabel flex-1 font-bold items-center justify-center flex-col"
+                    >
+                      True Label
+                    </div>
+                    <div>
+                      <div class="flex">
+                        <div class="flex items-center justify-center h-10 w-10">
+                          {''}
+                        </div>
+                        {#each data.ravel[1].letters as letter, i}
+                          <div class="h-10 w-10 items-center justify-center flex">
+                            {#if label === '-1'}
+                              {letter}
+                            {:else if data.ravel['1'].letters[i] === data.ravel['1'].letters[Number(label)]}
+                              +{data.ravel['1'].letters[Number(label)]}
+                            {:else if data.ravel['1'].letters[i] !== data.ravel['1'].letters[Number(label)]}
+                              -{data.ravel['1'].letters[Number(label)]}
+                            {/if}
+                          </div>
+                        {/each}
+                      </div>
+
+                      {#each data.ravel['1'].ravel as col, truth}
+                        <div class="flex relative">
+                          <div class="flex items-center justify-center h-10 w-10">
+                            {#if label === '-1'}
+                              {data.ravel['1'].letters[truth]}
+                            {:else if data.ravel['1'].letters[truth] === data.ravel['1'].letters[Number(label)]}
+                              +{data.ravel['1'].letters[Number(label)]}
+                            {:else if data.ravel['1'].letters[truth] !== data.ravel['1'].letters[Number(label)]}
+                              -{data.ravel['1'].letters[Number(label)]}
+                            {/if}
+                          </div>
+                          {#each col as row, pred}
+                            <div
+                              class={cn(
+                                'h-10 w-10 items-center justify-center flex border border-border',
+                                // TP
+                                Number(label) >= 0 &&
+                                  pred === Number(label) &&
+                                  pred === truth &&
+                                  'bg-sky-950 tp',
+                                // FN
+                                Number(label) >= 0 &&
+                                  data.ravel['1'].letters[pred] !==
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  data.ravel['1'].letters[truth] ===
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  'bg-sky-800 fn',
+                                // FP
+                                Number(label) >= 0 &&
+                                  data.ravel['1'].letters[pred] ===
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  data.ravel['1'].letters[truth] !==
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  'bg-sky-600 fp',
+                                // TN,
+                                Number(label) >= 0 &&
+                                  data.ravel['1'].letters[pred] !==
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  data.ravel['1'].letters[truth] !==
+                                    data.ravel['1'].letters[Number(label)] &&
+                                  'bg-sky-400 text-black tn'
+                              )}
+                            >
+                              {row}
+                            </div>
+                          {/each}
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="flex items-center gap-4 my-4">
                 <div class={!checked ? '' : 'text-muted-foreground'}>Nilai Asli</div>
                 <Switch bind:checked />
@@ -122,7 +246,7 @@
           </Card.Content>
         </Card.Root>
       </Tabs.Content>
-      <Tabs.Content value="cm2">
+      <Tabs.Content value="2">
         <Card.Root>
           <Card.Header>
             <Card.Title>Gambar 2 Tangan</Card.Title>
@@ -196,5 +320,10 @@
     margin-bottom: 0.8333333em;
     line-height: 1;
     font-weight: 800;
+  }
+
+  .truelabel {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
   }
 </style>

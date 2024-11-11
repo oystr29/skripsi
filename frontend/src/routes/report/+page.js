@@ -3,6 +3,7 @@ import axios from 'axios';
 
 /** @type {import('./$types').PageLoad} */
 export async function load() {
+  /** @typedef {{'ravel': number[][]; 'letters': string[] }} Ravel */
   /** 
    *@typedef {{ 'f1-score': number;
     precision: number;
@@ -11,7 +12,7 @@ export async function load() {
    * @type {import('axios').AxiosResponse<{ cm_report: Record<'1' | '2', Record<string, CM | number>>;cm_image: {
           '1': string;
           '2': string;
-        };  }>} */
+        }; ravel: {'1': Ravel ; '2': Ravel } }>} */
   const res = await axios(`${env.PUBLIC_BASE_API}/report`);
   const cm_report1 = Object.keys(res.data.cm_report[1]).map((l) => {
     if (typeof res.data.cm_report[1][l] === 'number')
