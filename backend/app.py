@@ -15,6 +15,16 @@ cm_report = {
 }
 
 count = {'': ''}
+ravel = {
+    "1": {
+        "ravel": [],
+        "letter": []
+    },
+    "2": {
+        "ravel": [],
+        "letter": []
+    },
+}
 
 with open('model/model_report_1.json', encoding="utf-8") as json_file:
     cm_report['1'] = json.load(json_file)
@@ -22,6 +32,10 @@ with open('model/model_report_2.json', encoding="utf-8") as json_file:
     cm_report['2'] = json.load(json_file)
 with open('model/count.json', encoding="utf-8") as json_file:
     count = json.load(json_file)
+with open('model/ravel1.json', encoding="utf-8") as json_file:
+    ravel['1'] = json.load(json_file)
+with open('model/ravel2.json', encoding="utf-8") as json_file:
+    ravel['2'] = json.load(json_file)
 # print(cm_report)
 
 
@@ -102,7 +116,7 @@ def report():
             '1': f'{request.url_root}static/img/cm/cm1.png',
             '2': f'{request.url_root}static/img/cm/cm2.png'
         },
-        'count': count
+        'ravel': ravel
     }
 
 @app.route("/words/<level>", methods=['GET'])
