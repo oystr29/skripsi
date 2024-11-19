@@ -2,14 +2,14 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { deviceIdStore } from '$lib/store';
   import { onMount } from 'svelte';
-  /** @type {import('./$types').PageData} */
-  export let data;
+  /** @type {{data: import('./$types').PageData}} */
+  let { data } = $props();
 
   /** @type {HTMLVideoElement | undefined} */
   let videoEl;
 
   /** @type {'load' | 'unable' | 'able'}*/
-  let loading = 'load';
+  let loading = $state('load');
 
   const enableCamera = async () => {
     try {
@@ -42,7 +42,7 @@
   };
 
   /** @type {MediaDeviceInfo[]} */
-  let optionsCamera = [];
+  let optionsCamera = $state([]);
   onMount(() => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       const videoDevices = devices.filter((device) => device.kind === 'videoinput');
@@ -90,7 +90,7 @@
       >
     {:else if loading === 'unable'}
       <button
-        on:click={enableCamera}
+        onclick={enableCamera}
         class="text-3xl font-bold px-10 py-4 rounded-full bg-sky-500 text-white hover:bg-sky-500/80 dark:bg-sky-950 dark:text-sky-500 dark:hover:bg-sky-500 dark:hover:text-white"
         >Izinkan Dulu Kamera</button
       >

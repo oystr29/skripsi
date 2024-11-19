@@ -9,7 +9,7 @@
     type NormalizedLandmark
   } from '@mediapipe/tasks-vision';
   import type { DrawingOptions } from '@mediapipe/drawing_utils';
-  import { createMutation, createQuery } from '@tanstack/svelte-query';
+  import { createMutation } from '@tanstack/svelte-query';
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { handlandmarkerStore } from '$lib/store';
@@ -22,11 +22,11 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { goto } from '$app/navigation';
 
-  export let data: PageData;
-  let windowWidth: number;
+  let { data } = $props() as { data: PageData };
+  let windowWidth: number | undefined = $state();
 
-  let videoEl: HTMLVideoElement | undefined;
-  let canvasEl: HTMLCanvasElement | undefined;
+  let videoEl: HTMLVideoElement | undefined = $state();
+  let canvasEl: HTMLCanvasElement | undefined = $state();
   /** @type {} */
   let canvasCtx: CanvasRenderingContext2D | null | undefined;
   /** @type {}*/
@@ -35,7 +35,7 @@
     handlandmarker = v;
   });
   let results: HandLandmarkerResult;
-  let lastVideoTime = -1;
+  let lastVideoTime = $state(-1);
 
   type Callback<I, O> = (input: I) => O;
 
@@ -66,8 +66,7 @@
     };
   }
 
-  /** @param {'idle' | 'run' | 'correct' | 'wrong' | 'fetching'} s */
-  function getColor(s) {
+  function getColor(s: 'idle' | 'run' | 'correct' | 'wrong' | 'fetching') {
     if (s === 'idle') {
       return '#64748b';
     }
@@ -85,15 +84,15 @@
     return '#334155';
   }
 
-  let video: MediaTrackConstraints | undefined;
-  let dialogOpen = true;
-  let levelEnd = false;
+  let video: MediaTrackConstraints | undefined = $state();
+  let dialogOpen = $state(true);
+  let levelEnd = $state(false);
 
-  let seconds = 3;
-  let state: 'idle' | 'run' | 'correct' | 'wrong' | 'fetching' = 'idle';
+  let seconds = $state(3);
+  let stateStatus: 'idle' | 'run' | 'correct' | 'wrong' | 'fetching' = $state('idle');
 
-  let currIndexWords = 0;
-  let currIndexLetters = 0;
+  let currIndexWords = $state(0);
+  let currIndexLetters = $state(0);
 
   const mutate = createMutation({
     mutationFn: async (variables: { results: NormalizedLandmark[][]; letter: string }) => {
@@ -106,7 +105,7 @@
       return res.data as { message: string };
     },
     onMutate: async () => {
-      state = 'fetching';
+      stateStatus = 'fetching';
     },
     onSuccess: async () => {
       // detect if not last word
@@ -117,7 +116,7 @@
       ) {
         // end
         levelEnd = true;
-        state = 'idle';
+        stateStatus = 'idle';
         return;
       }
 
@@ -138,13 +137,12 @@
       console.error(e);
     }
   });
-  let secondObj = {
+  let secondObj = $state({
     last: 0,
     now: 0
-  };
+  });
 
-  /**@param {number} nowSec */
-  async function predictWebcam(nowSec) {
+  async function predictWebcam(nowSec: any) {
     try {
       if (canvasEl && videoEl && handlandmarker && canvasCtx) {
         if (!video) {
@@ -165,17 +163,17 @@
         secondObj.now = nowSec;
 
         if (
-          (state === 'correct' || state === 'wrong') &&
+          (stateStatus === 'correct' || stateStatus === 'wrong') &&
           seconds - (nowSec - secondObj.last) / 1000 < 0
         ) {
           seconds = 3;
-          state = !results.landmarks.length || !dialogOpen ? 'run' : 'idle';
+          stateStatus = !results.landmarks.length || !dialogOpen ? 'run' : 'idle';
           secondObj.last = nowSec;
         }
 
         const currSec = seconds - (nowSec - secondObj.last) / 1000;
-        if (($mutate.isSuccess || $mutate.isError) && state === 'fetching') {
-          state = $mutate.isSuccess ? 'correct' : 'wrong';
+        if (($mutate.isSuccess || $mutate.isError) && stateStatus === 'fetching') {
+          stateStatus = $mutate.isSuccess ? 'correct' : 'wrong';
           seconds = 1;
           secondObj.last = nowSec;
         }
@@ -183,11 +181,11 @@
         if (
           !$mutate.isPending &&
           currSec < 0 &&
-          state === 'run' &&
+          stateStatus === 'run' &&
           results.landmarks.length >= 0 &&
           !dialogOpen
         ) {
-          state = 'fetching';
+          stateStatus = 'fetching';
           $mutate.mutateAsync({
             results: results.landmarks,
             letter: data.data?.words[currIndexWords][currIndexLetters] ?? ''
@@ -195,16 +193,16 @@
         }
 
         // Stop kalau tangannya hilang
-        if (results?.landmarks.length === 0 && state === 'run') {
+        if (results?.landmarks.length === 0 && stateStatus === 'run') {
           // clearInterval(interval);
-          state = 'idle';
+          stateStatus = 'idle';
           seconds = 3;
         }
 
         if (results?.landmarks.length > 0 && !dialogOpen && !levelEnd) {
-          if (state === 'idle') {
+          if (stateStatus === 'idle') {
             // startInterval();
-            state = 'run';
+            stateStatus = 'run';
             secondObj.last = nowSec;
           }
 
@@ -214,7 +212,7 @@
               return;
             }
             const ctx = canvasCtx;
-            const options = addDefaultOptions({ color: getColor(state), lineWidth: 1 });
+            const options = addDefaultOptions({ color: getColor(stateStatus), lineWidth: 1 });
             ctx.save();
             const canvas = ctx.canvas;
             let index = 0;
@@ -287,6 +285,9 @@
       console.log(e);
     }
   }
+
+  const circleMax = $derived(stateStatus === 'run' ? seconds : 1);
+  const circleValue = $derived(seconds - (secondObj.now - secondObj.last) / 1000);
 
   onMount(async () => {
     // Before we can use HandLandmarker class we must wait for it to finish
@@ -371,10 +372,10 @@
   </AlertDialog.Content>
 </AlertDialog.Root>
 
-{#if windowWidth <= 400}
+{#if windowWidth && windowWidth <= 400}
   <div
     class="bg-white h-1/3 absolute w-screen z-[60] text-black border-4"
-    style={`border-color: ${getColor(state)}`}
+    style={`border-color: ${getColor(stateStatus)}`}
   >
     <div class="w-full h-full flex flex-col items-center justify-between">
       <div class="font-bold">Ikuti Huruf</div>
@@ -391,9 +392,9 @@
         </div>
         <div class="flex items-center justify-center h-full w-full">
           <Circleprogress
-            max={state === 'run' ? seconds : 1}
+            max={stateStatus === 'run' ? seconds : 1}
             value={seconds - (secondObj.now - secondObj.last) / 1000}
-            {state}
+            {stateStatus}
           />
         </div>
       </div>
@@ -414,8 +415,9 @@
   >
     <track kind="captions" />
   </video>
-  <canvas class="absolute flip-video h-screen w-screen object-cover z-50" bind:this={canvasEl} />
-  <div class="bg-black/70 absolute w-screen h-screen z-40 object-cover" />
+  <canvas class="absolute flip-video h-screen w-screen object-cover z-50" bind:this={canvasEl}
+  ></canvas>
+  <div class="bg-black/70 absolute w-screen h-screen z-40 object-cover"></div>
 {:else}
   <main class="flex flex-1 flex-wrap">
     <div class="basis-1/3 bg-white text-black md:h-screen relative">
@@ -459,15 +461,11 @@
         </Button>
       </div>
     </div>
-    <div class="basis-2/3 relative border-4" style={`border-color: ${getColor(state)}`}>
+    <div class="basis-2/3 relative border-4" style={`border-color: ${getColor(stateStatus)}`}>
       <div class="absolute right-2 top-1 z-[60]"></div>
       <div class="video-container">
         <div class="absolute z-30 w-28 h-28 left-2 bottom-2">
-          <Circleprogress
-            max={state === 'run' ? seconds : 1}
-            value={seconds - (secondObj.now - secondObj.last) / 1000}
-            {state}
-          />
+          <Circleprogress max={circleMax} value={circleValue} {stateStatus} />
         </div>
         <video bind:this={videoEl} autoplay playsinline class="absolute video" id="">
           <track kind="captions" />

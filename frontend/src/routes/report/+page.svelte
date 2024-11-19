@@ -9,22 +9,14 @@
   import { Label } from '$lib/components/ui/label';
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import { cn } from '@/utils';
-  import { browser } from '$app/environment';
 
-  export let data: PageData;
+  let { data } = $props() as { data: PageData };
 
-  let value = '1';
+  let value = $state('1');
 
-  let label = '-1';
+  let label = $state('-1');
 
-  let cm_value = {
-    tp: '',
-    fn: '',
-    fp: '',
-    tn: ''
-  };
-
-  let checked = true;
+  let checked = $state(true);
 
   function percentage(value: number) {
     return `${+(value * 100).toFixed(2)}%`;

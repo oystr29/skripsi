@@ -1,38 +1,36 @@
 <script>
-  export let value = 0;
-  export let max = 100;
-  /** @type {'idle' | 'run' | 'correct'| 'wrong' | 'fetching'} */
-  export let state = 'idle';
+  /** @type {{stateStatus: 'idle' | 'run' | 'correct'| 'wrong' | 'fetching'; value: number; max: number; children: import('svelte').Snippet}} */
+  let { stateStatus, value = 0, max = 100, children } = $props();
 
-  let color = '#030712'; // 950
-  let trackColor = '#111827'; // 900
-  let fillColor = '#6b7280'; // 500
+  let color = $state('#030712'); // 950
+  let trackColor = $state('#111827'); // 900
+  let fillColor = $state('#6b7280'); // 500
 
-  $: {
-    if (state === 'correct') {
+  $effect(() => {
+    if (stateStatus === 'correct') {
       color = '#052e16';
       trackColor = '#14532d';
       fillColor = '#22c55e';
-    } else if (state === 'wrong') {
+    } else if (stateStatus === 'wrong') {
       color = '#450a0a';
       trackColor = '#7f1d1d';
       fillColor = '#ef4444';
-    } else if (state === 'fetching') {
+    } else if (stateStatus === 'fetching') {
       color = '#422006';
       trackColor = '#713f12';
       fillColor = '#eab308';
-    } else if (state === 'run') {
+    } else if (stateStatus === 'run') {
       color = '#082f49'; // 950
       trackColor = '#0c4a6e'; // 900
       fillColor = '#0ea5e9'; // 500
-    } else if (state === 'idle') {
+    } else if (stateStatus === 'idle') {
       color = '#030712'; // 950
       trackColor = '#111827'; // 900
       fillColor = '#6b7280'; // 500
     }
-  }
+  });
 
-  $: progressPath = () => {
+  const progressPath = $derived(() => {
     if (value <= 0) {
       return '';
     } else if (value >= max) {
@@ -52,7 +50,7 @@
 
       return path;
     }
-  };
+  });
 </script>
 
 <div class="sample-3b">
@@ -61,30 +59,24 @@
     <path stroke={color} d={progressPath()} />
   </svg>
   <div class="text-white text-xl">
-    <slot>
-      <span class="span">
-        {#if state === 'run'}
-          {Math.floor(value)}
-        {:else if state === 'idle'}
-          👍
-        {:else if state === 'correct'}
-          ✅
-        {:else if state === 'fetching'}
-          <span class="animate-spin">⌛</span>
-        {:else if state === 'wrong'}
-          ❌
-        {/if}
-      </span>
-    </slot>
+    {@render children?.()}
+    <span class="span">
+      {#if stateStatus === 'run'}
+        {Math.floor(value)}
+      {:else if stateStatus === 'idle'}
+        👍
+      {:else if stateStatus === 'correct'}
+        ✅
+      {:else if stateStatus === 'fetching'}
+        <span class="animate-spin">⌛</span>
+      {:else if stateStatus === 'wrong'}
+        ❌
+      {/if}
+    </span>
   </div>
 </div>
 
 <style>
-  .sample-3b {
-    /*     --progress-color: #082f49;
-    --progress-trackcolor: #0c4a6e; */
-    /* --progress-fill: #0ea5e9; */
-  }
   svg {
     height: 100%;
     position: absolute;
