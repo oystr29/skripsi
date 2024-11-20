@@ -1,5 +1,5 @@
 <script>
-  /** @type {{stateStatus: 'idle' | 'run' | 'correct'| 'wrong' | 'fetching'; value: number; max: number; children: import('svelte').Snippet}} */
+  /** @type {{stateStatus: 'idle' | 'run' | 'correct'| 'wrong' | 'fetching'; value: number; max: number; children?: import('svelte').Snippet}} */
   let { stateStatus, value = 0, max = 100, children } = $props();
 
   let color = $state('#030712'); // 950

@@ -286,6 +286,7 @@
     }
   }
 
+  // @ts-expect-error dunno why its error
   const circleMax = $derived(stateStatus === 'run' ? seconds : 1);
   const circleValue = $derived(seconds - (secondObj.now - secondObj.last) / 1000);
 

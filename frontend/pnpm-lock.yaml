@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/jetbrains-mono':
+        specifier: ^5.1.1
+        version: 5.1.1
+      '@fontsource/manrope':
+        specifier: ^5.1.0
+        version: 5.1.0
       '@mediapipe/drawing_utils':
         specifier: ^0.3.1675466124
         version: 0.3.1675466124
@@ -20,6 +26,9 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^5.52.0
         version: 5.52.0(svelte@5.2.3)
+      '@types/reveal.js':
+        specifier: ^5.0.4
+        version: 5.0.4
       '@types/three':
         specifier: ^0.167.1
         version: 0.167.1
@@ -41,6 +50,15 @@ importers:
       mode-watcher:
         specifier: ^0.4.1
         version: 0.4.1(svelte@5.2.3)
+      reveal.js:
+        specifier: ^5.1.0
+        version: 5.1.0
+      reveal.js-menu:
+        specifier: ^2.1.0
+        version: 2.1.0
+      reveal.js-simplemenu:
+        specifier: ^2.0.1
+        version: 2.0.1(reveal.js@5.1.0)
       svelte-sonner:
         specifier: ^0.3.27
         version: 0.3.27(svelte@5.2.3)
@@ -313,6 +331,12 @@ packages:
   '@floating-ui/utils@0.2.7':
     resolution: {integrity: sha512-X8R8Oj771YRl/w+c1HqAC1szL8zWQRwFvgDwT129k9ACdBoud/+/rX9V0qiMl6LWUdP9voC2nDVZYPMQQsb6eA==}
 
+  '@fontsource/jetbrains-mono@5.1.1':
+    resolution: {integrity: sha512-5rwvmdQQpXev4LlBX1P+7h2dguu6iwW/9Npjde4+DEq+HgpVJI/7QY8DI1NVVFdvLtXZNP+vO2L/5BQED6FUhA==}
+
+  '@fontsource/manrope@5.1.0':
+    resolution: {integrity: sha512-q3Va+3ymeE1n9mHSkp9fCqcFGX0q59Nn94WOjuPYaSYa1szt8qlaGbBQH0w9e1+PcPD8jf4JUIz3/KjWM6wcCw==}
+
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
     engines: {node: '>=12.22'}
@@ -579,6 +603,9 @@ packages:
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
+
+  '@types/reveal.js@5.0.4':
+    resolution: {integrity: sha512-70Qua903NRU736r8Z94okthf6hXKm+brta/KdHFrK6GD16eTmGhPrDYGCUP7eNifEA2mvJGlNq1IR41ycIX0Yw==}
 
   '@types/stats.js@0.17.3':
     resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
@@ -1531,6 +1558,18 @@ packages:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
+  reveal.js-menu@2.1.0:
+    resolution: {integrity: sha512-35zp4fHSMyWd15+3CvQ8LrpS+4Gj2qvlkxX3lo5LpITDe6ZkA4A9y1E5fE63YlQl5fp7W1mNgNJr4kCU0s14lA==}
+
+  reveal.js-simplemenu@2.0.1:
+    resolution: {integrity: sha512-JuT/3fCe9FPjBVHZzFB0pOX6xtq5LCdPts7beBdR+r/WxOGDeBVvSC+k2gd7C4KTYM4HzwSI6/9fDSneXKS9Rw==}
+    peerDependencies:
+      reveal.js: ^4.2
+
+  reveal.js@5.1.0:
+    resolution: {integrity: sha512-KDt7m0+xwKV6nAZt4CNPVFBf42sTKRQapg0bGGKB5PKO5XvChnMfwlZkybydHiQJ7p5+6LbHKRGrhXODdoNIaA==}
+    engines: {node: '>=18.0.0'}
+
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
     deprecated: Rimraf versions prior to v4 are no longer supported
@@ -2017,6 +2056,10 @@ snapshots:
 
   '@floating-ui/utils@0.2.7': {}
 
+  '@fontsource/jetbrains-mono@5.1.1': {}
+
+  '@fontsource/manrope@5.1.0': {}
+
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.3.0': {}
@@ -2268,6 +2311,8 @@ snapshots:
   '@types/pug@2.0.10': {}
 
   '@types/resolve@1.20.2': {}
+
+  '@types/reveal.js@5.0.4': {}
 
   '@types/stats.js@0.17.3': {}
 
@@ -3148,6 +3193,14 @@ snapshots:
       supports-preserve-symlinks-flag: 1.0.0
 
   reusify@1.0.4: {}
+
+  reveal.js-menu@2.1.0: {}
+
+  reveal.js-simplemenu@2.0.1(reveal.js@5.1.0):
+    dependencies:
+      reveal.js: 5.1.0
+
+  reveal.js@5.1.0: {}
 
   rimraf@2.7.1:
     dependencies:
