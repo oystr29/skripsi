@@ -92,13 +92,24 @@ body {
   font-weight: normal;
 }
 
-.reveal pre,
+/* .reveal pre,
 .reveal code {
-  overflow: hidden !important;
-}
+
+} */
 
 .reveal pre {
   box-shadow: none;
+}
+
+.reveal p {
+  margin: 8px 0;
+}
+
+.fragment.blur {
+  filter: blur(2px);
+}
+.fragment.blur.visible {
+  filter: none;
 }
 
 @layer base {
