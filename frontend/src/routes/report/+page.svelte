@@ -299,8 +299,12 @@
     </Tabs.Root>
   </div>
   <div class="mt-4">
-    Jumlah data <a href="/report/count" class="cursor-pointer hover:text-sky-500 hover:underline"
-      >klik disini</a
+    <a href="/report/count" class="cursor-pointer hover:text-sky-500 hover:underline">Jumlah data</a
+    >
+  </div>
+  <div class="mt-4">
+    <a href="/report/slides/semhas" class="cursor-pointer hover:text-sky-500 hover:underline"
+      >Slide Semhas</a
     >
   </div>
 </main>
