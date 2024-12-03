@@ -26,12 +26,6 @@ importers:
       '@tanstack/svelte-query':
         specifier: ^5.52.0
         version: 5.52.0(svelte@5.2.3)
-      '@types/reveal.js':
-        specifier: ^5.0.4
-        version: 5.0.4
-      '@types/three':
-        specifier: ^0.167.1
-        version: 0.167.1
       axios:
         specifier: ^1.7.5
         version: 1.7.5
@@ -47,21 +41,9 @@ importers:
       katex:
         specifier: ^0.16.11
         version: 0.16.11
-      mode-watcher:
-        specifier: ^0.4.1
-        version: 0.4.1(svelte@5.2.3)
       reveal.js:
         specifier: ^5.1.0
         version: 5.1.0
-      reveal.js-menu:
-        specifier: ^2.1.0
-        version: 2.1.0
-      reveal.js-simplemenu:
-        specifier: ^2.0.1
-        version: 2.0.1(reveal.js@5.1.0)
-      svelte-sonner:
-        specifier: ^0.3.27
-        version: 0.3.27(svelte@5.2.3)
       tailwind-merge:
         specifier: ^2.5.2
         version: 2.5.2
@@ -99,6 +81,12 @@ importers:
       '@types/node':
         specifier: ^22.7.6
         version: 22.7.6
+      '@types/reveal.js':
+        specifier: ^5.0.4
+        version: 5.0.4
+      '@types/three':
+        specifier: ^0.167.1
+        version: 0.167.1
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.41)
@@ -117,6 +105,9 @@ importers:
       globals:
         specifier: ^15.0.0
         version: 15.9.0
+      mode-watcher:
+        specifier: ^0.4.1
+        version: 0.4.1(svelte@5.2.3)
       postcss:
         specifier: ^8.4.41
         version: 8.4.41
@@ -135,6 +126,9 @@ importers:
       svelte-radix:
         specifier: ^1.1.1
         version: 1.1.1(svelte@5.2.3)
+      svelte-sonner:
+        specifier: ^0.3.27
+        version: 0.3.27(svelte@5.2.3)
       tailwindcss:
         specifier: ^3.4.9
         version: 3.4.9
@@ -1557,14 +1551,6 @@ packages:
   reusify@1.0.4:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
-
-  reveal.js-menu@2.1.0:
-    resolution: {integrity: sha512-35zp4fHSMyWd15+3CvQ8LrpS+4Gj2qvlkxX3lo5LpITDe6ZkA4A9y1E5fE63YlQl5fp7W1mNgNJr4kCU0s14lA==}
-
-  reveal.js-simplemenu@2.0.1:
-    resolution: {integrity: sha512-JuT/3fCe9FPjBVHZzFB0pOX6xtq5LCdPts7beBdR+r/WxOGDeBVvSC+k2gd7C4KTYM4HzwSI6/9fDSneXKS9Rw==}
-    peerDependencies:
-      reveal.js: ^4.2
 
   reveal.js@5.1.0:
     resolution: {integrity: sha512-KDt7m0+xwKV6nAZt4CNPVFBf42sTKRQapg0bGGKB5PKO5XvChnMfwlZkybydHiQJ7p5+6LbHKRGrhXODdoNIaA==}
@@ -3193,12 +3179,6 @@ snapshots:
       supports-preserve-symlinks-flag: 1.0.0
 
   reusify@1.0.4: {}
-
-  reveal.js-menu@2.1.0: {}
-
-  reveal.js-simplemenu@2.0.1(reveal.js@5.1.0):
-    dependencies:
-      reveal.js: 5.1.0
 
   reveal.js@5.1.0: {}
 

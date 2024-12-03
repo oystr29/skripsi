@@ -21,6 +21,7 @@
   import { ChevronRight } from 'svelte-radix';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { goto } from '$app/navigation';
+  import { toast } from 'svelte-sonner';
 
   let { data } = $props() as { data: PageData };
   let windowWidth: number | undefined = $state();
@@ -109,6 +110,7 @@
     },
     onSuccess: async () => {
       // detect if not last word
+      toast.success('Berhasil Memperagakan Huruf');
       if (
         data.data &&
         data.data.words.length - 1 === currIndexWords &&
@@ -135,6 +137,7 @@
     onError: async (e) => {
       // startInterval();
       console.error(e);
+      toast.error('Gagal Memperagakan Huruf', { description: 'Silahkan Coba Lagi' });
     }
   });
   let secondObj = $state({

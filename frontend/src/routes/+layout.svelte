@@ -21,6 +21,6 @@
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
-  <Toaster />
+  <Toaster richColors closeButton theme="dark" />
   <slot />
 </QueryClientProvider>

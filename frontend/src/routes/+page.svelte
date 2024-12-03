@@ -2,7 +2,7 @@
 </script>
 
 <svelte:head>
-  <title>Isyarat BISINDO</title>
+  <title>Alfabet BISINDO</title>
 </svelte:head>
 
 <header class="fixed p-2 w-full">
@@ -29,13 +29,16 @@
       </a>
     </div>
   </div>
-  <div class="flex items-center justify-center w-full gap-5">
+  <div class="flex flex-col md:flex-row items-center justify-center w-full gap-5">
+    <a href="/tutor">
+      <button class="hover:underline text-4xl font-bold">Tutor</button>
+    </a>
+    <div class="text-4xl hidden md:block">|</div>
     <a href="/about">
       <button class="hover:underline text-4xl font-bold">Tentang</button>
     </a>
-    <div class="text-4xl">|</div>
-    <a href="/report">
+    <!-- <a href="/report">
       <button class="hover:underline text-4xl font-bold">Laporan</button>
-    </a>
+    </a> -->
   </div>
 </main>

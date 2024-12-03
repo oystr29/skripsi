@@ -25,8 +25,8 @@
       Terima kasih ke para dosen: <br />
       <b>Ibu Prof. Dr. Anindita Septiarini, ST., M. Cs</b> <br />
       <b>Ibu Masna Wati, S. Si., MT</b> <br />
+      <b>Bpk Rajiansyah, S. Kom., M. Sc</b> <br />
       <b>Ibu Ummul Hairah, S. Pd., MT</b> <br />
-      <b>Ibu Ir. Novianti Puspitasari, S. Kom., M. Eng</b> <br />
     </p>
     <p>
       Beberapa link yang mungkin bisa membantu teman-teman:<br />
