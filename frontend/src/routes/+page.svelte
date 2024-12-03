@@ -31,7 +31,7 @@
   </div>
   <div class="flex flex-col md:flex-row items-center justify-center w-full gap-5">
     <a href="/tutor">
-      <button class="hover:underline text-4xl font-bold">Tutor</button>
+      <button class="hover:underline text-4xl font-bold">Tutorial</button>
     </a>
     <div class="text-4xl hidden md:block">|</div>
     <a href="/about">
