@@ -37,23 +37,23 @@ data_text = {
     "1": {
         "letters": ["C", "E", "I", "L", "O", "U", "V"],
         "words": [
-            "LOVE",
+            "VILO",
             "OLI",
             "LECI",
             "OVI",
-            "ULUR",
+            "CIE",
         ],
     },
     "2": {
         "letters": ["A", "B", "D", "F", "G", "H", "K", "M", "N", "P", "Q"],
-        "words": ["BAN", "DAMI", "FANA", "QALBU", "HALDA", "PAHAT", "KAKA"],
+        "words": ["BAN", "DAGU", "FANA", "QALBU", "HALDA", "PAHAM", "KAKA"],
     },
     "3": {
         "letters": ["J", "R", "S", "T", "W", "X", "Y", "Z"],
         "words": [
             "JIRA",
-            "HERU",
-            "LARA",
+            "YERI",
+            "TARA",
             "QORIN",
             "FAJAR",
             "XAVI",
@@ -64,11 +64,16 @@ data_text = {
     "4": {
         "letters": ["Semua Huruf"],
         "words": [
-            "OKTA",
+            "WENDY",
+            "SANI",
+            "XERNE",
+            "PATAH",
+            "QORI",
             "YUJU",
             "YEOCHIN",
             "NAVI",
-            "KEREN",
+            "ZEN",
+            "ZEKE",
         ],
     },
 }
