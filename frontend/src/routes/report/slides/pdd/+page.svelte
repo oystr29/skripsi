@@ -18,8 +18,8 @@
       autoAnimateEasing: 'ease',
       autoAnimateDuration: 1,
       hash: true,
-      parallaxBackgroundImage: '/gf-tftmn.jpeg',
-      // parallaxBackgroundSize: '900px 900px',
+      parallaxBackgroundImage: '/parallax-bg4.webp',
+      parallaxBackgroundSize: '2100px 900px',
       parallaxBackgroundHorizontal: 200
       // controls: false,
       // progress: false
@@ -61,7 +61,7 @@
           <span class="text-blue-500">Pak Raji</span>,
           <span class="text-yellow-500">Bu Ummul</span>
         </h4>
-        <div class="flex gap-10 flex-wrap">
+        <div class="grid grid-cols-2 gap-10">
           <div>
             <p>BAB I</p>
             <ul>
@@ -91,7 +91,7 @@
             </ul>
           </div>
           <div>
-            <p>BAB IV (konsul)</p>
+            <p>BAB IV</p>
             <ul>
               <li class="fragment text-blue-500">
                 Jelaskan kenapa gambar berkurang saat ekstrasi landmark menggunakan mediapipe
