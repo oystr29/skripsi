@@ -61,7 +61,7 @@
           <span class="text-blue-500">Pak Raji</span>,
           <span class="text-yellow-500">Bu Ummul</span>
         </h4>
-        <div class="grid grid-cols-2 gap-10">
+        <div class="grid grid-cols-2 gap-12">
           <div>
             <p>BAB I</p>
             <ul>
